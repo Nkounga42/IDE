@@ -1,29 +1,10 @@
-.editor-row {
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  flex-wrap: nowrap;
+#gjs {
   height: 300px;
+  width: auto;
+  background: red;
 }
-
-.editor-canvas {
-  flex-grow: 1;
-}
-
-.panel__right {
-  flex-basis: 230px;
-  position: relative;
-  overflow-y: auto;
-}
-
-.panel__top {
-  padding: 0;
+.gjs-cv-canvas {
+  top: 0;
   width: 100%;
-  display: flex;
-  position: initial;
-  justify-content: center;
-  justify-content: space-between;
-}
-.panel__basic-actions {
-  position: initial;
+  height: 50vh
 }
