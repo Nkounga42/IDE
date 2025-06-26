@@ -1,26 +1,32 @@
 import React, { useEffect, useState, useRef, useReducer } from "react";
 import ALL_TAILWIND_CLASSES from "./ALL_TAILWIND_CLASSES";
+import { X } from "lucide-react";
 
 const ClassManager = ({ editor }: { editor: grapesjs.Editor | null }) => {
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] = useState<grapesjs.Component | null>(null);
   const [classInput, setClassInput] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [idValue, setIdValue] = useState("");
+  const [titleValue, setTitleValue] = useState("");
+
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   useEffect(() => {
     if (!editor) return;
 
     const update = () => {
-      setSelected(editor.getSelected());
+      const sel = editor.getSelected();
+      setSelected(sel);
+      setIdValue(sel?.getAttributes().id || "");
+      setTitleValue(sel?.getAttributes().title || "");
     };
 
     editor.on("component:selected", update);
     return () => {
       editor.off("component:selected", update);
-      setSuggestions([]);
-      setShowSuggestions(false);
     };
   }, [editor]);
 
@@ -44,10 +50,9 @@ const ClassManager = ({ editor }: { editor: grapesjs.Editor | null }) => {
     setClassInput(value);
 
     if (value.trim().length > 0) {
-      const lowerCaseValue = value.toLowerCase();
       const filteredSuggestions = ALL_TAILWIND_CLASSES.filter(
         (cls) =>
-          cls.startsWith(lowerCaseValue) &&
+          cls.startsWith(value.toLowerCase()) &&
           !selected?.getClasses().includes(cls)
       ).slice(0, 10);
       setSuggestions(filteredSuggestions);
@@ -60,44 +65,42 @@ const ClassManager = ({ editor }: { editor: grapesjs.Editor | null }) => {
 
   const handleAddClass = () => {
     if (!selected || !classInput.trim()) return;
-
     const cls = classInput.trim();
-    if (selected.getClasses().includes(cls)) {
-      setClassInput("");
-      setSuggestions([]);
-      setShowSuggestions(false);
-      return;
-    }
+    if (selected.getClasses().includes(cls)) return;
 
     selected.addClass(cls);
-    selected.view?.render?.(); // <-- essentiel pour forcer l'affichage
-    forceUpdate(); // <-- utile pour forcer React à re-render
-
+    selected.view?.render?.();
+    forceUpdate();
     setClassInput("");
     setSuggestions([]);
     setShowSuggestions(false);
   };
 
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
-
   const handleRemoveClass = (cls: string) => {
     if (!selected) return;
-
-    const currentClasses = selected.getClasses();
-    if (!currentClasses.includes(cls)) {
-      return;
-    }
-
     selected.removeClass(cls);
-    selected.view?.render?.(); // force le rafraîchissement visuel
-    forceUpdate(); // déclenche un re-render React
-    inputRef.current?.focus();
+    selected.view?.render?.();
+    forceUpdate();
   };
 
   const handleSelectSuggestion = (suggestion: string) => {
     setClassInput(suggestion);
     setSuggestions([]);
     setShowSuggestions(false);
+  };
+
+  const handleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const id = e.target.value;
+    setIdValue(id);
+    selected?.addAttributes({ id });
+    selected?.view?.render?.();
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const title = e.target.value;
+    setTitleValue(title);
+    selected?.addAttributes({ title });
+    selected?.view?.render?.();
   };
 
   const highlightText = (text: string, highlight: string) => {
@@ -111,7 +114,7 @@ const ClassManager = ({ editor }: { editor: grapesjs.Editor | null }) => {
               {part}
             </span>
           ) : (
-            part
+            <span key={i}>{part}</span>
           )
         )}
       </span>
@@ -124,11 +127,12 @@ const ClassManager = ({ editor }: { editor: grapesjs.Editor | null }) => {
     );
   }
 
-  const classes = [...new Set(selected.getClasses())]; // remove duplicates
+  const classes = [...new Set(selected.getClasses())];
 
   return (
-    <div className="mb-4">
+    <div id="class-manager-panel" title="Gestionnaire de classes CSS" className="mb-4">
       <h4 className="font-semibold mb-2">Classes CSS</h4>
+
       <div className="relative flex gap-2 mb-2">
         <input
           ref={inputRef}
@@ -154,7 +158,7 @@ const ClassManager = ({ editor }: { editor: grapesjs.Editor | null }) => {
             }
           }}
         />
-        <button className="btn btn-sm btn-primary" onClick={handleAddClass}>
+        <button type="button" className="btn btn-sm btn-primary" onClick={handleAddClass}>
           Ajouter
         </button>
 
@@ -166,8 +170,13 @@ const ClassManager = ({ editor }: { editor: grapesjs.Editor | null }) => {
             {suggestions.map((suggestion, index) => (
               <div
                 key={index}
+                role="button"
+                tabIndex={0}
                 className="p-2 cursor-pointer hover:bg-base-200"
                 onClick={() => handleSelectSuggestion(suggestion)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSelectSuggestion(suggestion);
+                }}
               >
                 {highlightText(suggestion, classInput)}
               </div>
@@ -176,18 +185,47 @@ const ClassManager = ({ editor }: { editor: grapesjs.Editor | null }) => {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {classes.map((cls: string, index: number) => (
-          <div key={cls} className="badge badge-outline gap-1">
+      <div className="flex flex-wrap gap-2 mb-4">
+        {classes.map((cls: string) => (
+          <div key={cls} className="badge badge-outline gap-1 ">
             {cls}
             <button
-              className="ml-1 text-red-500"
+              className="ml-1 "
               onClick={() => handleRemoveClass(cls)}
             >
-              ✕
+              <X/>
             </button>
           </div>
         ))}
+      </div>
+
+      {/* === Champs ID et TITLE === */}
+      <div className="flex flex-col gap-2">
+        <label className="form-control w-full">
+          <div className="label">
+            <span className="label-text">ID</span>
+          </div>
+          <input
+            type="text"
+            className="input input-sm input-bordered"
+            value={idValue}
+            onChange={handleIdChange}
+            placeholder="ex: hero-section"
+          />
+        </label>
+
+        <label className="form-control w-full">
+          <div className="label">
+            <span className="label-text">Title</span>
+          </div>
+          <input
+            type="text"
+            className="input input-sm input-bordered"
+            value={titleValue}
+            onChange={handleTitleChange}
+            placeholder="ex: Ma section principale"
+          />
+        </label>
       </div>
     </div>
   );

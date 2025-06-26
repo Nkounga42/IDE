@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import StyleManager from "./StyleManager";
 import ClassManager from "./ClassManager";
+import LayerPanel from "./LayerPanel";
 
 const DaisyUI = [
   "https://cdn.jsdelivr.net/npm/tailwindcss@3.4.3/base.css",
@@ -349,6 +350,9 @@ const DesignArea = () => {
         <div ref={editorRef} className="flex-1 overflow-auto" />
       </div>
     </div>
+
+
+     <LayerPanel editor={editor} />
         <ClassManager  editor={editor}/>
        <StyleManager editor={editor}/>
     </div>
