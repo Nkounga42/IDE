@@ -1,38 +1,20 @@
-// FILEPATH: d:/web master/SAAS/IDE/src/pages/EditionArea.tsx
 
 import React, { useState, useEffect } from "react";
 import CodeEditor from "./codeEditor/CodeEditor";
-import { Play } from "lucide-react";
 import DesignArea from "./DesignEditor/DesignArea";
 
-type TabData = {
-  id: string;
-  label: string;
-  language: string;
-};
-
-const tabsConfig: TabData[] = [
+const tabsConfig = [
   { id: "css", label: "CSS", language: "css" },
   { id: "html", label: "HTML", language: "html" },
   { id: "js", label: "JavaScript", language: "javascript" },
-  { id: "preview", label: "preview", language: "preview" },
+  { id: "design", label: "Design", language: "html" },
+  { id: "preview", label: "Preview", language: "preview" },
 ];
 
-const EditionArea = ({
-  fontSize,
-  handleCodeChange,
-  setDragMode,
-}: {
-  fontSize: number;
-  handleCodeChange: (code: string) => void;
-  setDragMode: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+const EditionArea = ({ inspector, setInspector, fontSize, handleCodeChange, setDragMode }) => {
   const [selectedTab, setSelectedTab] = useState("html");
 
-  // State to store code for each tab
-  const [codes, setCodes] = useState<{
-    [key: string]: string;
-  }>({
+  const [codes, setCodes] = useState({
     css: `/* CSS initial */\nbody { margin: 0; }`,
     html: `<!-- HTML initial -->\n<div>Hello world</div>`,
     js: `// JS initial\nconsole.log("Hello");`,
@@ -41,11 +23,8 @@ const EditionArea = ({
   const currentLanguage = tabsConfig.find((tab) => tab.id === selectedTab)?.language || "text";
 
   const handleCodeChangeLocal = (code: string) => {
-    setCodes((prev) => ({
-      ...prev,
-      [selectedTab]: code,
-    }));
-    handleCodeChange(code); // Propagate change
+    setCodes((prev) => ({ ...prev, [selectedTab]: code }));
+    handleCodeChange(code);
   };
 
   const [srcDoc, setSrcDoc] = useState("");
@@ -67,13 +46,11 @@ const EditionArea = ({
         </html>
       `);
     }, 250);
-
     return () => clearTimeout(timeout);
-  }, [codes.css, codes.html, codes.js]);
+  }, [codes]);
 
   return (
     <div className="h-full w-full flex flex-col">
-      {/* Tabs */}
       <div role="tablist" className="flex align-center justify-between">
         <div role="tablist" className="tabs tabs-lift">
           {tabsConfig.map((tab) => (
@@ -81,7 +58,10 @@ const EditionArea = ({
               key={tab.id}
               role="tab"
               className={`tab ${selectedTab === tab.id ? "tab-active" : ""}`}
-              onClick={() => setSelectedTab(tab.id)}
+              onClick={(e) => {
+                e.preventDefault();
+                setSelectedTab(tab.id);
+              }}
               tabIndex={0}
               aria-selected={selectedTab === tab.id}
             >
@@ -89,22 +69,10 @@ const EditionArea = ({
             </a>
           ))}
         </div>
-        {/* <button className="btn btn-ghost" onClick={() => setDragMode(true)}>
-          <Play size={14} fill="currentColor" />
-        </button> */}
       </div>
-      {selectedTab !== "preview" ? (
-        <div className="flex-1 bg-base-100 border-base-300">
-          <DesignArea/>
-          {/* <CodeEditor
-            code={codes[selectedTab]}
-            language={currentLanguage}
-            onChange={handleCodeChangeLocal}
-            fontSize={fontSize}
-          /> */}
-        </div>
-      ) : (
-        <div className="flex-1 bg-base-100 border-base-300">
+
+      <div className="flex-1 bg-base-100 border-base-300">
+        {selectedTab === "preview" ? (
           <iframe
             srcDoc={srcDoc}
             title="preview"
@@ -114,8 +82,17 @@ const EditionArea = ({
             height="100%"
             style={{ backgroundColor: "white" }}
           />
-        </div>
-      )}
+        ) : selectedTab === "design" ? (
+          <DesignArea setInspector={setInspector} />
+        ) : (
+          <CodeEditor
+            code={codes[selectedTab]}
+            language={currentLanguage}
+            onChange={handleCodeChangeLocal}
+            fontSize={fontSize}
+          />
+        )}
+      </div>
     </div>
   );
 };

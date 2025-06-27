@@ -21,7 +21,8 @@ import {
 import StyleManager from "./StyleManager";
 import ClassManager from "./ClassManager";
 import LayerPanel from "./LayerPanel";
-import SideBar from "../../components/SideBar";
+
+
 const DaisyUI = [
   "https://cdn.jsdelivr.net/npm/tailwindcss@3.4.3/base.css",
   "https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css",
@@ -118,7 +119,7 @@ const GrapesToolbar = ({ editor, canvasReady }: GrapesToolbarProps) => {
           className="btn btn-sm"
           onClick={() => editor.runCommand("fullscreen")}
         >
-          <Maximize className="w-4 h-4" />  
+          <Maximize className="w-4 h-4" />
         </button>
 
         <button
@@ -127,21 +128,21 @@ const GrapesToolbar = ({ editor, canvasReady }: GrapesToolbarProps) => {
           disabled={!canvasReady}
           title={!canvasReady ? "Canvas pas encore prêt" : ""}
         >
-          <Monitor className="w-4 h-4" />  
+          <Monitor className="w-4 h-4" />
         </button>
 
         <button
           className="btn btn-sm"
           onClick={() => editor.runCommand("core:undo")}
         >
-          <Undo2 className="w-4 h-4" />  
+          <Undo2 className="w-4 h-4" />
         </button>
 
         <button
           className="btn btn-sm"
           onClick={() => editor.runCommand("core:redo")}
         >
-          <Redo className="w-4 h-4" /> 
+          <Redo className="w-4 h-4" />
         </button>
 
         <select
@@ -156,7 +157,7 @@ const GrapesToolbar = ({ editor, canvasReady }: GrapesToolbarProps) => {
         </select>
 
         <button className="btn btn-sm" onClick={openCodeModal}>
-          <Code className="w-4 h-4" />  
+          <Code className="w-4 h-4" />
         </button>
       </div>
 
@@ -186,7 +187,13 @@ const GrapesToolbar = ({ editor, canvasReady }: GrapesToolbarProps) => {
   );
 };
 
-const DesignArea = () => {
+const DesignArea = ({
+  setInspector,
+}: {
+  setInspector: React.Dispatch<
+    React.SetStateAction<{ html: number; css: number }>
+  >;
+}) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const blocksRef = useRef<HTMLDivElement>(null);
   const [editor, setEditor] = useState<grapesjs.Editor | null>(null);
@@ -240,25 +247,25 @@ const DesignArea = () => {
     if (!blocksRef.current) return;
     const e = grapesjs.init({
       container: blocksRef.current,
-      height: "80vh",
-      width: "auto",
+      height: "100vh",
+      width: "100%",
       storageManager: false,
       fromElement: true,
       plugins: ["gjs-blocks-basic"],
-      pluginsOpts: {
-        "gjs-blocks-basic": {
-          blocks: [
-            {
-              id: "daisy-hero",
-              label: "Hero",
-              category: "DaisyUI",
-              content: `<div class='hero min-h-screen bg-base-200'><div class='hero-content text-center'><div class='max-w-md'><h1 class='text-5xl font-bold'>Bienvenue</h1><p class='py-6'>DaisyUI intégré à GrapesJS !</p><button class='btn btn-primary'>Commencer</button></div></div></div>`,
-            },
-          ],
-        },
-      },
+      // pluginsOpts: {
+      //   "gjs-blocks-basic": {
+      //     blocks: [
+      //       {
+      //         id: "daisy-hero",
+      //         label: "Hero",
+      //         category: "DaisyUI",
+      //         content: `<div class='hero min-h-screen bg-base-200'><div class='hero-content text-center'><div class='max-w-md'><h1 class='text-5xl font-bold'>Bienvenue</h1><p class='py-6'>DaisyUI intégré à GrapesJS !</p><button class='btn btn-primary'>Commencer</button></div></div></div>`,
+      //       },
+      //     ],
+      //   },
+      // },
       blockManager: {
-        appendTo: blocksRef.current,
+        appendTo: "#blockManager",
         blocks: [
           {
             id: "daisy-hero",
@@ -331,73 +338,33 @@ const DesignArea = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!editor) return;
+
+    const onCanvasLoad = () => {
+      const html = editor.getHtml() || "";
+      const css = editor.getCss() || "";
+      setInspector({ html: html.length, css: css.length });
+    };
+
+    editor.on("canvas:load", onCanvasLoad);
+
+    return () => {
+      editor.off("canvas:load", onCanvasLoad);
+    };
+  }, [editor]);
+
   return (
     <div className="flex">
-      <SideBar />
-      <div className="flex">
-        <div id="gjs" ref={blocksRef}>
-          <h1>Hello World Component!</h1>
-        </div>
+      <Sidebar
+        editor={editor}
+        handleImport={handleImport}
+        handleExport={handleExport}
+      />
+      <div className="flex w-full h-full">
+        <div id="gjs" ref={blocksRef}></div>
       </div>
-
-
-      <div
-         
-        className="w-64 border-r border-base-300 p-2 bg-base-100 overflow-y-auto"
-      >
-        <h3 className="text-lg font-semibold">Pages</h3>
-        {pages.map((page) => (
-          <div key={page.id} className="mb-2">
-            <button
-              className={`btn btn-sm w-full ${
-                selectedPageId === page.id ? "btn-primary" : "btn-ghost"
-              }`}
-              onClick={() => editor?.Pages.select(page.id)}
-            >
-              {page.get("name")}
-            </button>
-          </div>
-        ))}
-
-        <button
-          className="btn btn-sm w-full btn-outline"
-          onClick={() => {
-            if (!editor) return;
-            const newPage = editor.Pages.add({
-              name: `Page ${pages.length + 1}`,
-              component: `<div class='p-5'>Nouvelle page</div>`,
-            });
-            editor.Pages.select(newPage.id);
-          }}
-        >
-          <FilePlus className="w-4 h-4" /> Ajouter page
-        </button>
-
-        <button className="btn btn-sm w-full mt-2" onClick={handleExport}>
-          <Download className="w-4 h-4" /> Exporter
-        </button>
-
-        <label className="btn btn-sm w-full mt-2 cursor-pointer">
-          <Upload className="w-4 h-4" /> Importer
-          <input
-            type="file"
-            accept=".json,.zip"
-            className="hid den"
-            onChange={handleImport}
-          />
-        </label>
-
-        <div className="mt-4 text-xs text-gray-400">
-          <div>HTML: {html.length} chars</div>
-          <div>CSS: {css.length} chars</div>
-        </div>
-      </div>
-      <div className="flex">
-        <GrapesToolbar editor={editor} canvasReady={canvasReady} />
-        <LayerPanel editor={editor} />
-        <ClassManager editor={editor} />
-        <StyleManager editor={editor} />
-      </div>
+      {editor && <StyleManager editor={editor} />}
     </div>
   );
 };

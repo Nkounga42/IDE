@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FilePlus,
   Search,
   GitBranch,
   Settings,
+  Download,
+  Upload,
 } from "lucide-react";
+import LayerPanel from "../pages/DesignEditor/LayerPanel";
+import ClassManager from "../pages/DesignEditor/ClassManager";
+import StyleManager from "../pages/DesignEditor/StyleManager";
 
 type SidebarItem = {
   label: string;
@@ -18,50 +23,115 @@ const Element: SidebarItem[] = [
   { label: "Settings" },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ editor, handleExport, handleImport }) => {
   const [activeSection, setActiveSection] = useState("explorer");
-  const [activeElementIndex, setActiveElementIndex] = useState<number | null>(null);
+  const [activeSidebar, setActiveSidebar] = useState(false);
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
+
+  // const pages = editor?.Pages.getAll() || [];
+  useEffect(() => {
+    if (editor) {
+      const updateSelected = () =>
+        setSelectedPageId(editor.Pages.getSelected()?.id || null);
+      editor.on("page", updateSelected);
+      updateSelected();
+      return () => editor.off("page", updateSelected);
+    }
+  }, [editor]);
 
   const items = [
-    { id: "explorer", icon: <FilePlus size={20} />, label: "Explorer" },
-    { id: "search", icon: <Search size={20} />, label: "Rechercher" },
-    { id: "git", icon: <GitBranch size={20} />, label: "Git" },
-    { id: "settings", icon: <Settings size={20} />, label: "Paramètres" },
+    {
+      id: "explorer",
+      icon: <FilePlus size={20} />,
+      label: "Explorer",
+      // content: <div>Explorer</div>,
+    },
+    {
+      id: "search",
+      icon: <Search size={20} />,
+      label: "Rechercher",
+      // content: <div>Rechercher</div>,
+    },
+    {
+      id: "git",
+      icon: <GitBranch size={20} />,
+      label: "Git",
+      // content: <div>Git</div>,
+    },
   ];
 
+  const handleSectionClick = (id: string) => {
+    if (activeSection === id) {
+      // Toggle sidebar visibility if clicking the same section
+      setActiveSidebar(!activeSidebar);
+    } else {
+      // Switch to new section and ensure sidebar is visible
+      setActiveSection(id);
+      setActiveSidebar(true);
+    }
+  };
+
   return (
-    <div className="flex bg-base-200 text-base-content transition-all duration-300 h-screen">
+    <div
+      className={`flex bg-base-200 ${
+        activeSidebar ? "w-60" : "w-11"
+      } text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-screen`}
+    >
       {/* Sidebar navigation */}
-      <nav className="flex flex-col border-r border-base-100/50">
-        {items.map(({ id, icon, label }) => (
+      <nav className="flex flex-col border-r justify-between border-base-100/70">
+        <div className="flex flex-col border-base-100/50">
+          {items.map(({id, icon, label }) => (
+            <div key={id} className="tooltip  tooltip-right" data-tip={label}>
+              <button
+                key={id}
+                onClick={() => handleSectionClick(id)}
+                className={`border-l-3 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 ${
+                  activeSection === id ? "border-primary" : "border-transparent"
+                }`}
+                // title={label}
+              >
+                {icon}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div>
           <button
-            key={id}
-            onClick={() => setActiveSection(id)}
-            className={`border-l-2 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 ${
-              activeSection === id ? "border-primary" : "border-transparent"
+            onClick={() => setActiveSidebar(false)}
+            className={`border-l-3 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 ${
+              activeSection === "settings"
+                ? "border-primary"
+                : "border-transparent"
             }`}
-            title={label}
+            title="Paramètres"
           >
-            {icon}
+            <Settings size={20} />
           </button>
-        ))}
+        </div>
       </nav>
 
-      {/* Sidebar content */}
-      <div className="w-48 flex flex-col">
-        {Element.map((item, index) => (
-          <div
-            key={index}
-            className={`px-4 py-2 cursor-pointer text-left hover:bg-base-100/20 transition ${
-              activeElementIndex === index ? "bg-base-300 font-bold" : ""
-            }`}
-            onClick={() => setActiveElementIndex(index)}
-            title={item.label}
-          >
-            {item.label}
-          </div>
-        ))}
-      </div>
+        <div id="blockManager" className="min-w-48 bg-base-100/50">
+          {(() => {
+            const item = items.find((item) => item.id === activeSection);
+            return item ? (
+              <React.Fragment key={item.id}>
+                <div className="border-b border-base-100/50 font-semibold px-2 py-1 ">
+                  {item.label}
+                </div>
+                <div className="px-2 py-1 h-full overflow-y-scroll">
+                  {item.content ? (
+                    <div className="h-full">{item.content}</div>
+                  ) : (
+                    <div className="text-sm text-base-content/50">
+                      Aucun contenu n'a été trouvé
+                    </div>
+                  )}
+                </div>
+              </React.Fragment>
+            ) : null;
+          })()}
+        </div>
     </div>
   );
 };
