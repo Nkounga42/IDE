@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import EditionArea from "./pages/EditionArea";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./components/navBar";
 
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";

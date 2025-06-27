@@ -1,34 +1,67 @@
-// components/Sidebar.tsx
-import { useDrag } from "react-dnd";
+import React, { useState } from "react";
+import {
+  FilePlus,
+  Search,
+  GitBranch,
+  Settings,
+} from "lucide-react";
 
-const COMPONENT = "component";
-
-const components = [
-  { id: "btn", label: "Bouton", html: `<button class="btn btn-primary">Clique</button>` },
-  { id: "input", label: "Champ texte", html: `<input class="input input-bordered" placeholder="Texte..." />` },
-  { id: "checkbox", label: "Checkbox", html: `<input type="checkbox" class="checkbox" />` },
-];
-
-const DraggableItem = ({ item }) => {
-  const [, drag] = useDrag(() => ({
-    type: COMPONENT,
-    item,
-  }));
-
-  return (
-    <div ref={drag} className="p-2 border rounded cursor-move hover:bg-base-300">
-      {item.label}
-    </div>
-  );
+type SidebarItem = {
+  label: string;
 };
 
+const Element: SidebarItem[] = [
+  { label: "Home" },
+  { label: "Dashboard" },
+  { label: "Projects" },
+  { label: "Messages" },
+  { label: "Settings" },
+];
+
 const Sidebar = () => {
+  const [activeSection, setActiveSection] = useState("explorer");
+  const [activeElementIndex, setActiveElementIndex] = useState<number | null>(null);
+
+  const items = [
+    { id: "explorer", icon: <FilePlus size={20} />, label: "Explorer" },
+    { id: "search", icon: <Search size={20} />, label: "Rechercher" },
+    { id: "git", icon: <GitBranch size={20} />, label: "Git" },
+    { id: "settings", icon: <Settings size={20} />, label: "Paramètres" },
+  ];
+
   return (
-    <div className="w-64 p-4 border-r border-base-300 bg-base-100 space-y-2">
-      <h2 className="text-lg font-bold mb-2">Composants</h2>
-      {components.map((item) => (
-        <DraggableItem key={item.id} item={item} />
-      ))}
+    <div className="flex bg-base-200 text-base-content transition-all duration-300 h-screen">
+      {/* Sidebar navigation */}
+      <nav className="flex flex-col border-r border-base-100/50">
+        {items.map(({ id, icon, label }) => (
+          <button
+            key={id}
+            onClick={() => setActiveSection(id)}
+            className={`border-l-2 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 ${
+              activeSection === id ? "border-primary" : "border-transparent"
+            }`}
+            title={label}
+          >
+            {icon}
+          </button>
+        ))}
+      </nav>
+
+      {/* Sidebar content */}
+      <div className="w-48 flex flex-col">
+        {Element.map((item, index) => (
+          <div
+            key={index}
+            className={`px-4 py-2 cursor-pointer text-left hover:bg-base-100/20 transition ${
+              activeElementIndex === index ? "bg-base-300 font-bold" : ""
+            }`}
+            onClick={() => setActiveElementIndex(index)}
+            title={item.label}
+          >
+            {item.label}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

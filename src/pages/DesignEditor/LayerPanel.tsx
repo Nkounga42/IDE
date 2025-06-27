@@ -219,7 +219,7 @@ const LayerPanel = ({ editor }: { editor: grapesjs.Editor | null }) => {
   };
 
   return (
-    <div className="p-2 bg-base-100 h-full overflow-auto select-none">
+    <div className="p-2 w-64 bg-base-100 h-full overflow-auto select-none">
       <h2 className="text-lg font-semibold mb-3">Calques</h2>
       {rootComponents.length === 0 ? (
         <div className="text-sm text-gray-500">Aucun composant</div>
