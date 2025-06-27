@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import EditionArea from "./pages/EditionArea";
 import Sidebar from "./components/SideBar";
 
@@ -16,42 +16,63 @@ import {
   Settings,
 } from "lucide-react";
 
-import { useNotification } from "./context/NotificationContext";
 import { NotificationBox } from "./components/NotificationBox";
+import { PushNotification } from "./context/NotificationStore";
+import { useNotification } from "./context/NotificationContext";
+import Statusbar from "./components/Statusbar";
+import CodeEditor from "./components/codeEditor/CodeEditor";
 
 const App = () => {
-  const [dragMode, setDragMode] = useState(false);
+  // const [dragMode, setDragMode] = useState(false);
   const [inspector, setInspector] = useState<{ html: number; css: number }>({
     html: 0,
     css: 0,
   });
-  const [notificationVisible, setNotificationVisible] = useState(true);
+  
+  const [notificationVisible, setNotificationVisible] = useState(false);
 
-  const {
-    notifications,
-    removeNotification,
-    clearNotifications,
-    addNotification,
-  } = useNotification();
+  const { notifications, removeNotification, clearNotifications } = useNotification();
 
   useEffect(() => {
-    addNotification({
-      type: "info",
-      icon: Bell,
-      title: "Mise à jour",
-      message: "Une mise à jour est disponible pour l’éditeur.",
+    const sampleNotifs = [
+    { type: "error", title: "Erreur de compilation", message: "Une erreur est survenue lors de la compilation. Veuillez vérifier votre code." },
+    { type: "info", title: "Mise à jour disponible", message: "Une nouvelle version de l’éditeur est disponible. Cliquez ici pour la découvrir." },
+    { type: "success", title: "Sauvegarde réussie", message: "Votre projet a été sauvegardé avec succès dans le cloud." },
+    { type: "warning", title: "Connexion instable", message: "La connexion réseau est instable. Les changements pourraient ne pas être sauvegardés." },
+    { type: "error", title: "Erreur serveur", message: "Le serveur n’a pas répondu. Veuillez réessayer plus tard." },
+    { type: "info", title: "Mode hors-ligne activé", message: "Vous êtes en mode hors-ligne. Les changements seront synchronisés plus tard." },
+    { type: "success", title: "Publication réussie", message: "Votre site a été publié avec succès. Il est maintenant accessible en ligne." },
+    { type: "warning", title: "Changements non sauvegardés", message: "Vous avez des modifications non sauvegardées. Pensez à les enregistrer." },
+    { type: "info", title: "Bienvenue !", message: "Bienvenue dans votre nouvel environnement de développement." },
+    { type: "success", title: "Exportation terminée", message: "Votre projet a été exporté avec succès au format ZIP." },
+  ];
+
+  sampleNotifs.forEach(({ type, title, message }) => {
+    PushNotification({
+      type,
+      title,
+      message, 
     });
+  });
   }, []);
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="h-screen w-full flex flex-col bg-base-200 overflow-hidden relative">
-        <Sidebar
-          editor={undefined}
-          handleImport={undefined}
-          handleExport={undefined}
-        />
-
+        <div className="p-1">
+          header
+        </div>
+        <div className="h-full flex">
+          <Sidebar
+            editor={undefined}
+            handleImport={undefined}
+            handleExport={undefined}
+          />
+          <div className="bg-base-100 w-full">
+            <CodeEditor />
+            {/* <Editor height="90vh" defaultLanguage="javascript" defaultValue="// some comment" />;  */}
+          </div>
+        </div>
         {/* Barre d'état */}
         <Statusbar
           inspector={inspector}
@@ -59,7 +80,6 @@ const App = () => {
           setNotificationVisible={setNotificationVisible}
           notificationVisible={notificationVisible}
         />
-
 
         {/* Notifications */}
         <NotificationBox
@@ -76,37 +96,3 @@ const App = () => {
 };
 
 export default App;
-
-// --------------------- Composant Statusbar ---------------------
-
-const Statusbar = ({
-  inspector,
-  notifications,
-  notificationVisible,
-  setNotificationVisible,
-}: {
-  inspector: { html: number; css: number };
-  notifications: number;
-  notificationVisible: boolean;
-  setNotificationVisible: (visible: boolean) => void;
-}) => {
-  return (
-    <div className="h-6 px-4 flex items-center justify-between text-[12px] bg-base-300 text-base-content border-t border-base-200">
-      <div className="space-x-2">
-        <span>HTML: {inspector.html}</span>
-        <span>CSS: {inspector.css}</span>
-      </div>
-      <div className="flex items-center space-x-2">
-        <button
-          className="btn btn-sm btn-ghost h-6 w-6 rounded-none p-0"
-          onClick={() => setNotificationVisible(!notificationVisible)}
-        >
-          {notifications > 0 ? <BellDot size={13} /> : <Bell size={13} />}
-        </button> 
-      </div>
-    </div>
-  );
-};
-
-// --------------------- Composant NotificationBox ---------------------
-

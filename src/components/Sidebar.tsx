@@ -62,10 +62,8 @@ const Sidebar = ({ editor, handleExport, handleImport }) => {
 
   const handleSectionClick = (id: string) => {
     if (activeSection === id) {
-      // Toggle sidebar visibility if clicking the same section
       setActiveSidebar(!activeSidebar);
     } else {
-      // Switch to new section and ensure sidebar is visible
       setActiveSection(id);
       setActiveSidebar(true);
     }
@@ -75,9 +73,8 @@ const Sidebar = ({ editor, handleExport, handleImport }) => {
     <div
       className={`flex bg-base-200 ${
         activeSidebar ? "w-60" : "w-11"
-      } text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-screen`}
+      } text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-full`}
     >
-      {/* Sidebar navigation */}
       <nav className="flex flex-col border-r justify-between border-base-100/70">
         <div className="flex flex-col border-base-100/50">
           {items.map(({id, icon, label }) => (

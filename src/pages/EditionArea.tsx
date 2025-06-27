@@ -71,7 +71,7 @@ const EditionArea = ({ inspector, setInspector, fontSize, handleCodeChange, setD
         </div>
       </div>
 
-      <div className="flex-1 bg-base-100 border-base-300">
+      <div className="flex-1  border-base-300">
         {selectedTab === "preview" ? (
           <iframe
             srcDoc={srcDoc}
