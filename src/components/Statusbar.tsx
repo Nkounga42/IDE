@@ -1,20 +1,22 @@
 import { Bell, BellDot } from "lucide-react";
 
 const Statusbar = ({
+  charCount,
   inspector,
   notifications,
   notificationVisible,
   setNotificationVisible,
 }: {
   inspector: { html: number; css: number };
+  charCount: number;
   notifications: number;
   notificationVisible: boolean;
   setNotificationVisible: (visible: boolean) => void;
 }) => {
   return (
-    <div className="h-6 px-4 flex items-center justify-between text-[12px] bg-base-300 text-base-content border-t border-base-200">
+    <div className="h-6 px-4 flex items-center justify-between text-[12px] bg-base-100 text-base-content border-t border-base-200">
       <div className="space-x-2">
-        <span>HTML: {inspector.html}</span>
+        <span>HTML: { charCount}</span>
         <span>CSS: {inspector.css}</span>
       </div>
       <div className="flex items-center space-x-2 tooltip tooltip-top">

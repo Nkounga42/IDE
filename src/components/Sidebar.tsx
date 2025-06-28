@@ -3,14 +3,12 @@ import {
   FilePlus,
   Search,
   GitBranch,
-  Settings,
-  Download,
-  Upload,
-} from "lucide-react";
-import LayerPanel from "../pages/DesignEditor/LayerPanel";
-import ClassManager from "../pages/DesignEditor/ClassManager";
-import StyleManager from "../pages/DesignEditor/StyleManager";
-
+  Settings, 
+  Component as ComponentIcon 
+} from "lucide-react"; 
+import BlockList from "./Designer/BlockList";
+import SearchReplace from "./SearchReplace";
+import FileTree from "./fileTree";
 type SidebarItem = {
   label: string;
 };
@@ -44,13 +42,19 @@ const Sidebar = ({ editor, handleExport, handleImport }) => {
       id: "explorer",
       icon: <FilePlus size={20} />,
       label: "Explorer",
-      // content: <div>Explorer</div>,
+      content: <FileTree/>
+    },
+    {
+      id: "Compoment",
+      icon: <ComponentIcon size={20} />,
+      label: "Compoment",
+      content:  <BlockList editor={editor} />,
     },
     {
       id: "search",
       icon: <Search size={20} />,
       label: "Rechercher",
-      // content: <div>Rechercher</div>,
+      content: <SearchReplace />,
     },
     {
       id: "git",
@@ -72,7 +76,7 @@ const Sidebar = ({ editor, handleExport, handleImport }) => {
   return (
     <div
       className={`flex bg-base-200 ${
-        activeSidebar ? "w-60" : "w-11"
+        activeSidebar ? "w-74" : "min-w-11 "
       } text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-full`}
     >
       <nav className="flex flex-col border-r justify-between border-base-100/70">
@@ -108,7 +112,7 @@ const Sidebar = ({ editor, handleExport, handleImport }) => {
         </div>
       </nav>
 
-        <div id="blockManager" className="min-w-48 bg-base-100/50">
+        <div id="blockManager" className="bg-base-100/50">
           {(() => {
             const item = items.find((item) => item.id === activeSection);
             return item ? (
@@ -116,11 +120,11 @@ const Sidebar = ({ editor, handleExport, handleImport }) => {
                 <div className="border-b border-base-100/50 font-semibold px-2 py-1 ">
                   {item.label}
                 </div>
-                <div className="px-2 py-1 h-full overflow-y-scroll">
+                <div className="h-full overflow-y-scroll">
                   {item.content ? (
                     <div className="h-full">{item.content}</div>
                   ) : (
-                    <div className="text-sm text-base-content/50">
+                    <div className="text-sm text-base-content/50 px-2 ">
                       Aucun contenu n'a été trouvé
                     </div>
                   )}

@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from "react";
-import CodeEditor from "./codeEditor/CodeEditor";
 import DesignArea from "./DesignEditor/DesignArea";
 
 const tabsConfig = [
@@ -82,16 +81,9 @@ const EditionArea = ({ inspector, setInspector, fontSize, handleCodeChange, setD
             height="100%"
             style={{ backgroundColor: "white" }}
           />
-        ) : selectedTab === "design" ? (
-          <DesignArea setInspector={setInspector} />
-        ) : (
-          <CodeEditor
-            code={codes[selectedTab]}
-            language={currentLanguage}
-            onChange={handleCodeChangeLocal}
-            fontSize={fontSize}
-          />
-        )}
+        ) :  (
+          <DesignArea setInspector={setInspector} />)
+         }
       </div>
     </div>
   );
