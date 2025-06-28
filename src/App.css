@@ -36,3 +36,24 @@
   --depth: 0;
   --noise: 0;
 } */
+.split {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+}
+
+.split > div {
+    float: left;
+    height: 100%;
+}
+
+.gutter {
+    background-color: var(--color-base-300/50);
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+    /* background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg=='); */
+    cursor: col-resize;
+}

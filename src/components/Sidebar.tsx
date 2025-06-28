@@ -3,30 +3,58 @@ import {
   FilePlus,
   Search,
   GitBranch,
-  Settings, 
-  Component as ComponentIcon 
-} from "lucide-react"; 
+  Settings,
+  Component as ComponentIcon,
+} from "lucide-react";
+
 import BlockList from "./Designer/BlockList";
 import SearchReplace from "./SearchReplace";
 import FileTree from "./fileTree";
-type SidebarItem = {
-  label: string;
+
+type SidebarProps = {
+  editor: any;
+  handleExport?: () => void;
+  handleImport?: () => void;
 };
 
-const Element: SidebarItem[] = [
-  { label: "Home" },
-  { label: "Dashboard" },
-  { label: "Projects" },
-  { label: "Messages" },
-  { label: "Settings" },
+type SidebarItem = {
+  id: string;
+  icon: JSX.Element;
+  label: string;
+  content?: JSX.Element;
+};
+
+const items: SidebarItem[] = [
+  {
+    id: "explorer",
+    icon: <FilePlus size={20} />,
+    label: "Explorer",
+    content: <FileTree />,
+  },
+  {
+    id: "component",
+    icon: <ComponentIcon size={20} />,
+    label: "Component",
+    content: <BlockList editor={null} />, // updated dynamically later
+  },
+  {
+    id: "search",
+    icon: <Search size={20} />,
+    label: "Rechercher",
+    content: <SearchReplace />,
+  },
+  {
+    id: "git",
+    icon: <GitBranch size={20} />,
+    label: "Git",
+    content: undefined,
+  },
 ];
 
-const Sidebar = ({ editor, handleExport, handleImport }) => {
-  const [activeSection, setActiveSection] = useState("explorer");
+const Sidebar: React.FC<SidebarProps> = ({ editor, handleExport, handleImport, activeSection, setActiveSection }) => {
   const [activeSidebar, setActiveSidebar] = useState(false);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
 
-  // const pages = editor?.Pages.getAll() || [];
   useEffect(() => {
     if (editor) {
       const updateSelected = () =>
@@ -36,33 +64,6 @@ const Sidebar = ({ editor, handleExport, handleImport }) => {
       return () => editor.off("page", updateSelected);
     }
   }, [editor]);
-
-  const items = [
-    {
-      id: "explorer",
-      icon: <FilePlus size={20} />,
-      label: "Explorer",
-      content: <FileTree/>
-    },
-    {
-      id: "Compoment",
-      icon: <ComponentIcon size={20} />,
-      label: "Compoment",
-      content:  <BlockList editor={editor} />,
-    },
-    {
-      id: "search",
-      icon: <Search size={20} />,
-      label: "Rechercher",
-      content: <SearchReplace />,
-    },
-    {
-      id: "git",
-      icon: <GitBranch size={20} />,
-      label: "Git",
-      // content: <div>Git</div>,
-    },
-  ];
 
   const handleSectionClick = (id: string) => {
     if (activeSection === id) {
@@ -75,35 +76,28 @@ const Sidebar = ({ editor, handleExport, handleImport }) => {
 
   return (
     <div
-      className={`flex bg-base-200 ${
-        activeSidebar ? "w-74" : "min-w-11 "
-      } text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-full`}
+      className={`flex bg-base-200 w-12 5 text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-full`}
     >
       <nav className="flex flex-col border-r justify-between border-base-100/70">
         <div className="flex flex-col border-base-100/50">
-          {items.map(({id, icon, label }) => (
-            <div key={id} className="tooltip  tooltip-right" data-tip={label}>
+          {items.map(({ id, icon, label }) => (
+            <div key={id} className="tooltip tooltip-right" data-tip={label}>
               <button
-                key={id}
                 onClick={() => handleSectionClick(id)}
                 className={`border-l-3 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 ${
                   activeSection === id ? "border-primary" : "border-transparent"
                 }`}
-                // title={label}
               >
                 {icon}
               </button>
             </div>
           ))}
         </div>
-
         <div>
           <button
             onClick={() => setActiveSidebar(false)}
             className={`border-l-3 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 ${
-              activeSection === "settings"
-                ? "border-primary"
-                : "border-transparent"
+              activeSection === "settings" ? "border-primary" : "border-transparent"
             }`}
             title="Paramètres"
           >
@@ -111,30 +105,42 @@ const Sidebar = ({ editor, handleExport, handleImport }) => {
           </button>
         </div>
       </nav>
-
-        <div id="blockManager" className="bg-base-100/50">
-          {(() => {
-            const item = items.find((item) => item.id === activeSection);
-            return item ? (
-              <React.Fragment key={item.id}>
-                <div className="border-b border-base-100/50 font-semibold px-2 py-1 ">
-                  {item.label}
-                </div>
-                <div className="h-full overflow-y-scroll">
-                  {item.content ? (
-                    <div className="h-full">{item.content}</div>
-                  ) : (
-                    <div className="text-sm text-base-content/50 px-2 ">
-                      Aucun contenu n'a été trouvé
-                    </div>
-                  )}
-                </div>
-              </React.Fragment>
-            ) : null;
-          })()}
-        </div>
     </div>
   );
 };
 
 export default Sidebar;
+
+type SidePanelProps = {
+  activeSection: string;
+  editor: any;
+};
+
+export const SidePanel: React.FC<SidePanelProps> = ({ activeSection, editor }) => {
+  const contentItem = items.find((item) => item.id === activeSection);
+
+  if (contentItem?.id === "component") {
+    contentItem.content = <BlockList editor={editor} />;
+  }
+
+  return (
+    <div id="blockManager" className="bg-base-100/50 w-full h-full min-w-50">
+      {contentItem ? (
+        <>
+          <div className="border-b border-base-100/50 font-semibold px-2 py-1">
+            {contentItem.label}
+          </div>
+          <div className="h-full overflow-y-scroll">
+            {contentItem.content ? (
+              <div className="h-full">{contentItem.content}</div>
+            ) : (
+              <div className="text-sm text-base-content/50 px-2">
+                Aucun contenu n'a été trouvé
+              </div>
+            )}
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+};

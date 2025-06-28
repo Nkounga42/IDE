@@ -21,6 +21,7 @@ type TreeNode = {
   type: "file" | "folder";
   children?: TreeNode[];
   parent?: TreeNode | null;
+  content?: string;  
 };
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -31,15 +32,15 @@ const initialData: TreeNode[] = [
     name: "src",
     type: "folder",
     children: [
-      { id: "2", name: "App.tsx", type: "file" },
-      { id: "3", name: "index.tsx", type: "file" },
+      { id: "2", name: "App.tsx", type: "file" , content: 'pas de contenue' },
+      { id: "3", name: "index.tsx", type: "file" , content: 'pas de contenue' },
       {
         id: "6",
         name: "components",
         type: "folder",
         children: [
-          { id: "7", name: "Button.tsx", type: "file" },
-          { id: "8", name: "Modal.tsx", type: "file" },
+          { id: "7", name: "Button.tsx", type: "file" , content: 'pas de contenue' },
+          { id: "8", name: "Modal.tsx", type: "file" , content: 'pas de contenue' },
         ],
       },
     ],
@@ -48,7 +49,7 @@ const initialData: TreeNode[] = [
     id: "4",
     name: "public",
     type: "folder",
-    children: [{ id: "5", name: "index.html", type: "file" }],
+    children: [{ id: "5", name: "index.html", type: "file" , content: 'pas de contenue' }],
   },
 ];
 
