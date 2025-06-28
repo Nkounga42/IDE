@@ -1,9 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Folder,
+  FolderOpen,
+  File,
+  Edit2,
+  Trash2,
+  FilePlus,
+  FolderPlus,
+  Copy,
+  Scissors,
+  ClipboardPaste,
+  Code,
+  PlayCircle,
+  Brush,
+} from "lucide-react";
 
 type TreeNode = {
   id: string;
   name: string;
-  type: 'file' | 'folder';
+  type: "file" | "folder";
   children?: TreeNode[];
   parent?: TreeNode | null;
 };
@@ -12,33 +27,35 @@ const generateId = () => Math.random().toString(36).substring(2, 9);
 
 const initialData: TreeNode[] = [
   {
-    id: '1',
-    name: 'src',
-    type: 'folder',
+    id: "1",
+    name: "src",
+    type: "folder",
     children: [
-      { id: '2', name: 'App.tsx', type: 'file' },
-      { id: '3', name: 'index.tsx', type: 'file' },
+      { id: "2", name: "App.tsx", type: "file" },
+      { id: "3", name: "index.tsx", type: "file" },
       {
-        id: '6',
-        name: 'components',
-        type: 'folder',
+        id: "6",
+        name: "components",
+        type: "folder",
         children: [
-          { id: '7', name: 'Button.tsx', type: 'file' },
-          { id: '8', name: 'Modal.tsx', type: 'file' },
+          { id: "7", name: "Button.tsx", type: "file" },
+          { id: "8", name: "Modal.tsx", type: "file" },
         ],
       },
     ],
   },
   {
-    id: '4',
-    name: 'public',
-    type: 'folder',
-    children: [{ id: '5', name: 'index.html', type: 'file' }],
+    id: "4",
+    name: "public",
+    type: "folder",
+    children: [{ id: "5", name: "index.html", type: "file" }],
   },
 ];
 
-// Ajoute les parents dans chaque noeud de l'arbre (utile pour éviter références circulaires lors des opérations)
-const addParents = (nodes: TreeNode[], parent: TreeNode | null = null): TreeNode[] => {
+const addParents = (
+  nodes: TreeNode[],
+  parent: TreeNode | null = null
+): TreeNode[] => {
   return nodes.map((node) => {
     const newNode = { ...node, parent };
     if (newNode.children) {
@@ -53,7 +70,8 @@ const FileTree: React.FC = () => {
   const [contextNode, setContextNode] = useState<TreeNode | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [clipboard, setClipboard] = useState<TreeNode | null>(null);
-  const [cutMode, setCutMode] = useState(false); // Pour différencier copier / couper
+  const [cutMode, setCutMode] = useState(false);
+  const menuRef = useRef<HTMLUListElement>(null);
 
   const closeContextMenu = () => {
     setContextMenu(null);
@@ -66,9 +84,25 @@ const FileTree: React.FC = () => {
     setContextMenu({ x: e.clientX, y: e.clientY });
   };
 
-  // Met à jour l'arbre en appliquant updater sur le noeud sélectionné
-  const updateTree = (updater: (node: TreeNode) => TreeNode | null, nodes: TreeNode[] = treeData): TreeNode[] => {
-    return nodes
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        closeContextMenu();
+      }
+    };
+    if (contextMenu) {
+      window.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      window.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [contextMenu]);
+
+  const updateTree = (
+    updater: (node: TreeNode) => TreeNode | null,
+    nodes: TreeNode[] = treeData
+  ): TreeNode[] =>
+    nodes
       .map((node) => {
         if (node.id === contextNode?.id) {
           return updater(node);
@@ -79,9 +113,7 @@ const FileTree: React.FC = () => {
         return node;
       })
       .filter(Boolean) as TreeNode[];
-  };
 
-  // Supprime les propriétés "parent" avant de copier dans le clipboard (évite les références circulaires)
   const cleanNodeForClipboard = (node: TreeNode): TreeNode => {
     const { parent, ...rest } = node;
     if (rest.children) {
@@ -91,7 +123,7 @@ const FileTree: React.FC = () => {
   };
 
   const handleRename = () => {
-    const newName = prompt('Nouveau nom :', contextNode?.name);
+    const newName = prompt("Nouveau nom :", contextNode?.name);
     if (!newName) return;
     const updated = updateTree((node) => ({ ...node, name: newName }));
     setTreeData(addParents(updated));
@@ -104,17 +136,19 @@ const FileTree: React.FC = () => {
     closeContextMenu();
   };
 
-  const handleCreate = (type: 'file' | 'folder') => {
-    const name = prompt(`Nom du nouveau ${type === 'file' ? 'fichier' : 'dossier'} :`);
+  const handleCreate = (type: "file" | "folder") => {
+    const name = prompt(
+      `Nom du nouveau ${type === "file" ? "fichier" : "dossier"} :`
+    );
     if (!name) return;
     const newNode: TreeNode = {
       id: generateId(),
       name,
       type,
-      children: type === 'folder' ? [] : undefined,
+      children: type === "folder" ? [] : undefined,
     };
     const updated = updateTree((node) =>
-      node.type === 'folder'
+      node.type === "folder"
         ? { ...node, children: [...(node.children || []), newNode] }
         : node
     );
@@ -141,8 +175,8 @@ const FileTree: React.FC = () => {
   };
 
   const handlePaste = () => {
-    if (!clipboard || contextNode?.type !== 'folder') return;
-    // Génère un nouvel id récursivement pour le noeud collé et ses enfants
+    if (!clipboard || contextNode?.type !== "folder") return;
+
     const cloneWithNewIds = (node: TreeNode): TreeNode => {
       const newNode = { ...node, id: generateId() };
       if (newNode.children) {
@@ -150,14 +184,15 @@ const FileTree: React.FC = () => {
       }
       return newNode;
     };
+
     const pasted = cloneWithNewIds(clipboard);
+
     let updated = updateTree((node) =>
       node.id === contextNode.id
         ? { ...node, children: [...(node.children || []), pasted] }
         : node
     );
 
-    // Si on était en mode couper, on supprime l'original
     if (cutMode) {
       updated = removeNodeById(updated, clipboard.id);
       setCutMode(false);
@@ -168,30 +203,110 @@ const FileTree: React.FC = () => {
     closeContextMenu();
   };
 
-  // Supprime un noeud de l'arbre par id (utile pour couper)
-  const removeNodeById = (nodes: TreeNode[], idToRemove: string): TreeNode[] => {
-    return nodes
+  const removeNodeById = (
+    nodes: TreeNode[],
+    idToRemove: string
+  ): TreeNode[] =>
+    nodes
       .map((node) => {
         if (node.id === idToRemove) return null;
         if (node.children) {
-          return { ...node, children: removeNodeById(node.children, idToRemove) };
+          return {
+            ...node,
+            children: removeNodeById(node.children, idToRemove),
+          };
         }
         return node;
       })
       .filter(Boolean) as TreeNode[];
-  };
+
+  const contextMenuCommands = [
+    {
+      icon: <Code size={16} />,
+      label: "Ouvrir avec l'éditeur",
+      onClick: () => console.log("éditeur"),
+    },
+    {
+      icon: <Brush size={16} />,
+      label: "Ouvrir avec le Designer",
+      onClick: () => console.log("Designer"),
+    },
+    {
+      icon: <PlayCircle size={16} />,
+      label: "Voir l'aperçu",
+      onClick: () => console.log("aperçu"),
+    },
+    {
+      icon: <Edit2 size={16} />,
+      label: "Renommer",
+      onClick: handleRename,
+    },
+    {
+      icon: <Trash2 size={16} />,
+      label: "Supprimer",
+      onClick: handleDelete,
+    },
+    {
+      icon: <FilePlus size={16} />,
+      label: "Nouveau fichier",
+      onClick: () => handleCreate("file"),
+    },
+    {
+      icon: <FolderPlus size={16} />,
+      label: "Nouveau dossier",
+      onClick: () => handleCreate("folder"),
+    },
+    {
+      icon: <Copy size={16} />,
+      label: "Copier",
+      onClick: handleCopy,
+    },
+    {
+      icon: <Scissors size={16} />,
+      label: "Couper",
+      onClick: handleCut,
+    },
+    {
+      icon: <ClipboardPaste size={16} />,
+      label: "Coller",
+      onClick: clipboard && contextNode?.type === "folder" ? handlePaste : undefined,
+      disabled: !clipboard || contextNode?.type !== "folder",
+    },
+    {
+      icon: <FolderOpen size={16} />,
+      label: "Copier chemin relatif",
+      onClick: () => {
+        if (!contextNode) return;
+        const getPath = (node: TreeNode | null): string =>
+          node ? (node.parent ? getPath(node.parent) + "/" + node.name : node.name) : "";
+        navigator.clipboard.writeText(getPath(contextNode));
+        closeContextMenu();
+      },
+    },
+    {
+      icon: <Folder size={16} />,
+      label: "Copier chemin absolu",
+      onClick: () => {
+        if (!contextNode) return;
+        const getAbsolutePath = (node: TreeNode | null): string =>
+          node ? (node.parent ? getAbsolutePath(node.parent) + "/" + node.name : "/root/" + node.name) : "";
+        navigator.clipboard.writeText(getAbsolutePath(contextNode));
+        closeContextMenu();
+      },
+    },
+  ];
 
   const FolderNode: React.FC<{ node: TreeNode }> = ({ node }) => {
     const [isOpen, setIsOpen] = useState(true);
-
     return (
-      <div className="ml-2">
+      <div className="pl-2">
         <div
-          onClick={() => node.type === 'folder' && setIsOpen(!isOpen)}
+          onClick={() => node.type === "folder" && setIsOpen(!isOpen)}
           onContextMenu={(e) => handleContextMenu(e, node)}
-          className="cursor-pointer select-none hover:bg-base-300 rounded px-1"
+          className="cursor-pointer select-none hover:bg-primary/30 rounded px-1 flex items-center gap-1"
         >
-          {node.type === 'folder' ? (isOpen ? '📂' : '📁') : '📄'} {node.name}
+          {node.type === "folder" ? (isOpen ? <FolderOpen size={16} className="text-orange-300"/> : <Folder size={16} className="text-orange-300"/>) : <File size={16} className="text-content-base"/>} {/** {getFileExtension(node.name)} */} 
+          <span>{node.name}</span>
         </div>
         {isOpen &&
           node.children?.map((child) => <FolderNode key={child.id} node={child} />)}
@@ -200,74 +315,28 @@ const FileTree: React.FC = () => {
   };
 
   return (
-    <div onClick={closeContextMenu} className="relative font-mono text-sm p-2">
+    <div className="relative font-mono text-sm p-2">
       {treeData.map((node) => (
         <FolderNode key={node.id} node={node} />
       ))}
-
       {contextMenu && (
         <ul
+          ref={menuRef}
           style={{ top: contextMenu.y, left: contextMenu.x }}
           className="fixed bg-base-100 border border-base-200 p-1 rounded-lg shadow w-48 z-50 text-sm"
         >
-          <li className="px-3 py-1 hover:bg-base-300 cursor-pointer rounded-lg" onClick={handleRename}>
-            ✏️ Renommer
-          </li>
-          <li className="px-3 py-1 hover:bg-base-300 cursor-pointer rounded-lg" onClick={handleDelete}>
-            🗑 Supprimer
-          </li>
-          <li className="px-3 py-1 hover:bg-base-300 cursor-pointer rounded-lg" onClick={() => handleCreate('file')}>
-            📄 Nouveau fichier
-          </li>
-          <li className="px-3 py-1 hover:bg-base-300 cursor-pointer rounded-lg" onClick={() => handleCreate('folder')}>
-            📁 Nouveau dossier
-          </li>
-          <li className="px-3 py-1 hover:bg-base-300 cursor-pointer rounded-lg" onClick={handleCopy}>
-            📋 Copier
-          </li>
-          <li className="px-3 py-1 hover:bg-base-300 cursor-pointer rounded-lg" onClick={handleCut}>
-            ✂️ Couper
-          </li>
-          <li
-            className={`px-3 py-1 hover:bg-base-300 cursor-pointer ${
-              !clipboard || contextNode?.type !== 'folder'
-                ? 'rounded-lg text-base-content/50 cursor-not-allowed'
-                : 'rounded-lg'
-            }`}
-            onClick={clipboard && contextNode?.type === 'folder' ? handlePaste : undefined}
-          >
-            📥 Coller
-          </li>
-          <li
-            className="px-3 py-1 hover:bg-base-300 cursor-pointer rounded-lg"
-            onClick={() => {
-              if (!contextNode) return;
-              // Copier le chemin relatif (depuis la racine)
-              const getPath = (node: TreeNode | null): string => {
-                if (!node) return '';
-                return node.parent ? getPath(node.parent) + '/' + node.name : node.name;
-              };
-              navigator.clipboard.writeText(getPath(contextNode));
-              closeContextMenu();
-            }}
-          >
-            📂 Copier chemin relatif
-          </li>
-          <li
-            className="px-3 py-1 hover:bg-base-300 cursor-pointer rounded-lg"
-            onClick={() => {
-              if (!contextNode) return;
-              // Copier le chemin absolu (simulateur ici = chemin relatif avec /root)
-              const getAbsolutePath = (node: TreeNode | null): string => {
-                if (!node) return '';
-                return node.parent ? getAbsolutePath(node.parent) + '/' + node.name : '/root/' + node.name;
-              };
-              navigator.clipboard.writeText(getAbsolutePath(contextNode));
-              closeContextMenu();
-            }}
-          >
-            📁 Copier chemin absolu
-          </li>
+          {contextMenuCommands.map(({ label, icon, onClick, disabled }, i) => (
+            <li
+              key={i}
+              className={`px-3 py-1 flex items-center hover:bg-base-300 rounded-lg ${
+                disabled ? "text-base-content/50 cursor-not-allowed" : "cursor-pointer"
+              }`}
+              onClick={disabled ? undefined : onClick}
+            >
+              {icon}
+              <span className="ml-2">{label}</span>
+            </li>
+          ))}
         </ul>
       )}
     </div>

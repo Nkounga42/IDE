@@ -133,7 +133,7 @@ const App = () => {
         <div className="justify-between flex border-b border-base-200">
           <ModeSwitcher mode={mode} setMode={setMode} setLanguage={setLanguage} setTheme={setTheme} />
         </div>
-        <div className="h-full flex flex-row-reverse">
+        <div className="h-full flex flex -row -reverse">
           <div className={mode === "edition" ? "hidden" : "w-full h-full"}>
             <Canvas setEditor={setEditor} />
           </div>
