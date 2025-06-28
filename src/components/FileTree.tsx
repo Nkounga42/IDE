@@ -26,34 +26,8 @@ type TreeNode = {
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
-const initialData: TreeNode[] = [
-  {
-    id: "1",
-    name: "src",
-    type: "folder",
-    children: [
-      { id: "2", name: "App.tsx", type: "file" , content: 'pas de contenue' },
-      { id: "3", name: "index.tsx", type: "file" , content: 'pas de contenue' },
-      {
-        id: "6",
-        name: "components",
-        type: "folder",
-        children: [
-          { id: "7", name: "Button.tsx", type: "file" , content: 'pas de contenue' },
-          { id: "8", name: "Modal.tsx", type: "file" , content: 'pas de contenue' },
-        ],
-      },
-    ],
-  },
-  {
-    id: "4",
-    name: "public",
-    type: "folder",
-    children: [{ id: "5", name: "index.html", type: "file" , content: 'pas de contenue' }],
-  },
-];
 
-const addParents = (
+const addParents = ( 
   nodes: TreeNode[],
   parent: TreeNode | null = null
 ): TreeNode[] => {
@@ -66,7 +40,7 @@ const addParents = (
   });
 };
 
-const FileTree: React.FC = () => {
+const FileTree: React.FC<{ initialData: TreeNode[] }> = ({ initialData }) => {
   const [treeData, setTreeData] = useState<TreeNode[]>(addParents(initialData));
   const [contextNode, setContextNode] = useState<TreeNode | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);

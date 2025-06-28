@@ -17,19 +17,13 @@ type SidebarProps = {
   handleImport?: () => void;
 };
 
-type SidebarItem = {
-  id: string;
-  icon: JSX.Element;
-  label: string;
-  content?: JSX.Element;
-};
-
+import initialData from "../Data/initialData";
 const items: SidebarItem[] = [
   {
     id: "explorer",
     icon: <FilePlus size={20} />,
     label: "Explorer",
-    content: <FileTree />,
+    content: <FileTree initialData={initialData} />,
   },
   {
     id: "component",
@@ -49,7 +43,15 @@ const items: SidebarItem[] = [
     label: "Git",
     content: undefined,
   },
-];
+]
+
+type SidebarItem = {
+  id: string;
+  icon: JSX.Element;
+  label: string;
+  content?: JSX.Element;
+};
+
 
 const Sidebar: React.FC<SidebarProps> = ({ editor, handleExport, handleImport, activeSection, setActiveSection }) => {
   const [activeSidebar, setActiveSidebar] = useState(false);
@@ -76,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ editor, handleExport, handleImport, a
 
   return (
     <div
-      className={`flex bg-base-200 w-12 5 text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-full`}
+      className={`flex bg-base-200 min-w-11 text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-full`}
     >
       <nav className="flex flex-col border-r justify-between border-base-100/70">
         <div className="flex flex-col border-base-100/50">

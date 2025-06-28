@@ -1,7 +1,13 @@
 import React, { useRef, useState } from "react";
 import { Editor } from "@monaco-editor/react";
 
-const CodeEditor = ({ code, setCharCount, language, theme, onContentChange}) => {
+const CodeEditor = ({
+  code = "",
+  setCharCount = () => {},
+  language = "javascript",
+  theme = "vs-dark",
+  onContentChange = () => {},
+}) => {
   const monacoRef = useRef(null);
 
   const handleEditorWillMount = (monaco) => {
@@ -21,10 +27,10 @@ const CodeEditor = ({ code, setCharCount, language, theme, onContentChange}) => 
   return (
     <Editor
       height="100%"
-      width="100%"
+      width="99.95%"
       language={language}
-      value={code} 
-      theme={theme}
+      value={code}
+      theme={ /*theme || */"vs-dark"}
       beforeMount={handleEditorWillMount}
       onMount={handleEditorDidMount}
       onChange={handleEditorChange} // <-- écoute les changements

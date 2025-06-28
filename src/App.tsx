@@ -17,14 +17,18 @@ import { sampleNotifs } from "./sampleNotifs"; // Assurez-vous que ce fichier ex
 import OgletManager from "./components/OgletManager";
 
 const template = ` <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Most played songs this week</li>`;
-
+const initialOnglets = [
+  { id: "tab1", label: "Explorateur", content: "Contenu Explorateur" },
+  { id: "tab2", label: "Vue 2", content: "Contenu 2" },
+  { id: "tab3", label: "Vue 3", content: "Contenu 3" },
+];
 const App = () => {
   // const [dragMode, setDragMode] = useState(false);
 
   const [mode, setMode] = useState("edition");
   const [htmlCode, setHtmlCode] = useState(template);
   const [language, setLanguage] = useState("Html");
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("vs-dark");
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [editor, setEditor] = useState<grapesjs.Editor | null>(null);
   const [charCount, setCharCount] = useState(0);
@@ -51,11 +55,11 @@ const App = () => {
     const isDark =
       window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setTheme(isDark ? "dark" : "light");
+    setTheme(isDark ? "light" : "dark");
 
     // Écoute les changements du thème système en temps réel
     const listener = (e: MediaQueryListEvent) => {
-      setTheme(e.matches ? "dark" : "light");
+      setTheme(e.matches ? "light" : "vs-dark");
     };
 
     window
@@ -103,24 +107,7 @@ const App = () => {
           <div className={mode === "edition" ? "hidden" : "w-full h-full"}>
             <Canvas setEditor={setEditor} />
           </div>{" "}
-          {/* CodeEditor visible si mode édition */}
-          {mode === "edition" && (
-            <div className="w-full h-full" hidden>
-              <CodeEditor
-                language={language}
-                theme={theme}
-                code={htmlCode}
-                setCharCount={setCharCount}
-                onContentChange={(html: string) => {
-                  setHtmlCode(html);
-                  if (editor && typeof editor.setComponents === "function") {
-                    editor.setComponents(html);
-                    editor.setStyle("");
-                  }
-                }}
-              />
-            </div>
-          )}
+           
         </div>
         <div className="flex h-full w-full">
           <Sidebar
@@ -132,11 +119,10 @@ const App = () => {
           />
           <div className="flex h-full w-full">
             <Split
-              className="split"
-              // minSize={[150, 150]}
+              className="split" 
               sizes={[35, 650]}          // définit les tailles en pourcentage
-              minSize={[170, 300]} 
-              gutterSize={5}
+              minSize={[170, 500]} 
+              gutterSize={15}
               gutterAlign="start"
               direction="horizontal"
               style={{ height: "100%", width: "100%" }}
@@ -144,25 +130,16 @@ const App = () => {
               <SidePanel activeSection={activeSection} editor={editor} />
 
               {mode === "edition" ? (
-                <OgletManager />
-              ) : (
-                <div className="w-full h-full" >
-                  <CodeEditor
-                    language={language}
-                    theme={theme}
-                    code={htmlCode}
-                    setCharCount={setCharCount}
-                    onContentChange={(html: string) => {
+                <OgletManager setCharCount={setCharCount} initialOnglets={initialOnglets} language={language}  onContentChange={(html: string) => {
                       setHtmlCode(html);
-                      if (
-                        editor &&
-                        typeof editor.setComponents === "function"
-                      ) {
+                      if (editor && typeof editor.setComponents === "function") {
                         editor.setComponents(html);
                         editor.setStyle("");
                       }
                     }}
-                  />
+                    theme={theme}/>
+              ) : (
+                <div className="w-full h-full" > 
                 </div>
               )}
             </Split>
