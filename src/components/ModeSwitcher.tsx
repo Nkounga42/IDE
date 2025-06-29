@@ -19,7 +19,7 @@ type ModeSwitcherProps = {
 
 const ModeSwitcher = ({ mode, setMode, setLanguage, setTheme }: ModeSwitcherProps) => {
   return (
-    <div className="flex items-center gap-2 px-2">
+    <div className="flex items-center gap-2 px-2 h-10">
       {/* Boutons de mode */}
       <div className="p-1 flex join">
         {modes.map(({ id, label, Icon }) => (

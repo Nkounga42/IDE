@@ -21,13 +21,12 @@ type TreeNode = {
   type: "file" | "folder";
   children?: TreeNode[];
   parent?: TreeNode | null;
-  content?: string;  
+  content?: string;
 };
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
-
-const addParents = ( 
+const addParents = (
   nodes: TreeNode[],
   parent: TreeNode | null = null
 ): TreeNode[] => {
@@ -35,15 +34,21 @@ const addParents = (
     const newNode = { ...node, parent };
     if (newNode.children) {
       newNode.children = addParents(newNode.children, newNode);
-    }
+    } 
     return newNode;
   });
 };
 
-const FileTree: React.FC<{ initialData: TreeNode[] }> = ({ initialData }) => {
+const FileTree: React.FC<{
+  initialData: TreeNode[];
+  openFile: (node: TreeNode) => void; 
+}> = ({ initialData, openFile }) => {
   const [treeData, setTreeData] = useState<TreeNode[]>(addParents(initialData));
   const [contextNode, setContextNode] = useState<TreeNode | null>(null);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [clipboard, setClipboard] = useState<TreeNode | null>(null);
   const [cutMode, setCutMode] = useState(false);
   const menuRef = useRef<HTMLUListElement>(null);
@@ -178,10 +183,7 @@ const FileTree: React.FC<{ initialData: TreeNode[] }> = ({ initialData }) => {
     closeContextMenu();
   };
 
-  const removeNodeById = (
-    nodes: TreeNode[],
-    idToRemove: string
-  ): TreeNode[] =>
+  const removeNodeById = (nodes: TreeNode[], idToRemove: string): TreeNode[] =>
     nodes
       .map((node) => {
         if (node.id === idToRemove) return null;
@@ -199,8 +201,14 @@ const FileTree: React.FC<{ initialData: TreeNode[] }> = ({ initialData }) => {
     {
       icon: <Code size={16} />,
       label: "Ouvrir avec l'éditeur",
-      onClick: () => console.log("éditeur"),
+      onClick: () => {
+        if (contextNode?.type === "file") {
+          openFile(contextNode);   
+        }
+        closeContextMenu();
+      },
     },
+
     {
       icon: <Brush size={16} />,
       label: "Ouvrir avec le Designer",
@@ -244,7 +252,8 @@ const FileTree: React.FC<{ initialData: TreeNode[] }> = ({ initialData }) => {
     {
       icon: <ClipboardPaste size={16} />,
       label: "Coller",
-      onClick: clipboard && contextNode?.type === "folder" ? handlePaste : undefined,
+      onClick:
+        clipboard && contextNode?.type === "folder" ? handlePaste : undefined,
       disabled: !clipboard || contextNode?.type !== "folder",
     },
     {
@@ -253,7 +262,11 @@ const FileTree: React.FC<{ initialData: TreeNode[] }> = ({ initialData }) => {
       onClick: () => {
         if (!contextNode) return;
         const getPath = (node: TreeNode | null): string =>
-          node ? (node.parent ? getPath(node.parent) + "/" + node.name : node.name) : "";
+          node
+            ? node.parent
+              ? getPath(node.parent) + "/" + node.name
+              : node.name
+            : "";
         navigator.clipboard.writeText(getPath(contextNode));
         closeContextMenu();
       },
@@ -264,7 +277,11 @@ const FileTree: React.FC<{ initialData: TreeNode[] }> = ({ initialData }) => {
       onClick: () => {
         if (!contextNode) return;
         const getAbsolutePath = (node: TreeNode | null): string =>
-          node ? (node.parent ? getAbsolutePath(node.parent) + "/" + node.name : "/root/" + node.name) : "";
+          node
+            ? node.parent
+              ? getAbsolutePath(node.parent) + "/" + node.name
+              : "/root/" + node.name
+            : "";
         navigator.clipboard.writeText(getAbsolutePath(contextNode));
         closeContextMenu();
       },
@@ -274,23 +291,57 @@ const FileTree: React.FC<{ initialData: TreeNode[] }> = ({ initialData }) => {
   const FolderNode: React.FC<{ node: TreeNode }> = ({ node }) => {
     const [isOpen, setIsOpen] = useState(true);
     return (
-      <div className="pl-2">
+      <div className="pl-2 bord er-l bor der-base-content/10">
         <div
-          onClick={() => node.type === "folder" && setIsOpen(!isOpen)}
+          onClick={() => node.type === "folder" ? setIsOpen(!isOpen) : openFile(node)  }
           onContextMenu={(e) => handleContextMenu(e, node)}
-          className="cursor-pointer select-none hover:bg-primary/30 rounded px-1 flex items-center gap-1"
+          className="cursor-pointer select-none hover:bg-primary/30 rounded px-1 py-1 flex items-center gap-1"
         >
-          {node.type === "folder" ? (isOpen ? <FolderOpen size={16} className="text-orange-300"/> : <Folder size={16} className="text-orange-300"/>) : <File size={16} className="text-content-base"/>} {/** {getFileExtension(node.name)} */} 
+          {node.type === "folder" ? (
+            isOpen ? (
+              <FolderOpen size={16} className="text-orange-300" />
+            ) : (
+              <Folder size={16} className="text-orange-300" />
+            )
+          ) : (
+            <File size={16} className="text-content-base" />
+          )}{" "}
+          {/** {getFileExtension(node.name)} */}
           <span>{node.name}</span>
         </div>
         {isOpen &&
-          node.children?.map((child) => <FolderNode key={child.id} node={child} />)}
+          node.children?.map((child) => (
+            <FolderNode key={child.id} node={child} />
+          ))}
       </div>
     );
   };
+  const openFileInEditor = (fileNode) => {
+    const id = fileNode.id;
+    const label = fileNode.name;
+    const content = fileNode.content || "";
+
+    setOglets((prev) => {
+      const exists = prev.some((o) => o.id === id);
+      if (exists) return prev; // Ne pas ouvrir 2x le même onglet
+
+      return [
+        ...prev,
+        {
+          id,
+          code: content,
+          lineNumbers: [],
+          cursorLine: 1,
+          cursorCol: 1,
+        },
+      ];
+    });
+  };
 
   return (
-    <div className="relative font-mono text-sm p-2">
+    <div className="relative font-mono text-sm ">
+        {/* <div className="p-1 bg-base-300 ">Racine</div> */}
+
       {treeData.map((node) => (
         <FolderNode key={node.id} node={node} />
       ))}
@@ -304,7 +355,9 @@ const FileTree: React.FC<{ initialData: TreeNode[] }> = ({ initialData }) => {
             <li
               key={i}
               className={`px-3 py-1 flex items-center hover:bg-base-300 rounded-lg ${
-                disabled ? "text-base-content/50 cursor-not-allowed" : "cursor-pointer"
+                disabled
+                  ? "text-base-content/50 cursor-not-allowed"
+                  : "cursor-pointer"
               }`}
               onClick={disabled ? undefined : onClick}
             >

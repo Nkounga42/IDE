@@ -11,49 +11,41 @@ import BlockList from "./Designer/BlockList";
 import SearchReplace from "./SearchReplace";
 import FileTree from "./fileTree";
 
-type SidebarProps = {
-  editor: any;
-  handleExport?: () => void;
-  handleImport?: () => void;
-};
-
 import initialData from "../Data/initialData";
-const items: SidebarItem[] = [
-  {
-    id: "explorer",
-    icon: <FilePlus size={20} />,
-    label: "Explorer",
-    content: <FileTree initialData={initialData} />,
-  },
-  {
-    id: "component",
-    icon: <ComponentIcon size={20} />,
-    label: "Component",
-    content: <BlockList editor={null} />, // updated dynamically later
-  },
-  {
-    id: "search",
-    icon: <Search size={20} />,
-    label: "Rechercher",
-    content: <SearchReplace />,
-  },
-  {
-    id: "git",
-    icon: <GitBranch size={20} />,
-    label: "Git",
-    content: undefined,
-  },
-]
 
-type SidebarItem = {
+type TreeNode = {
   id: string;
-  icon: JSX.Element;
-  label: string;
-  content?: JSX.Element;
+  name: string;
+  type: "file" | "folder";
+  children?: TreeNode[];
+  parent?: TreeNode | null;
+  content?: string;
 };
 
+interface SidebarItem {
+  id: string;
+  icon: React.ReactNode;
+  label: string;
+  content?: React.ReactNode;
+}
 
-const Sidebar: React.FC<SidebarProps> = ({ editor, handleExport, handleImport, activeSection, setActiveSection }) => {
+interface SidebarProps {
+  editor: grapesjs.Editor | null;
+  activeSection: string;
+  setActiveSection: React.Dispatch<React.SetStateAction<string>>;
+  handleImport?: () => void;
+  handleExport?: () => void;
+  openFile: (node: TreeNode) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({
+   editor,
+  handleExport,
+  handleImport,
+  openFile, // on récupère openFile ici
+  activeSection,
+  setActiveSection,
+}) => {
   const [activeSidebar, setActiveSidebar] = useState(false);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
 
@@ -76,10 +68,37 @@ const Sidebar: React.FC<SidebarProps> = ({ editor, handleExport, handleImport, a
     }
   };
 
+  const items: SidebarItem[] = [
+    {
+      id: "explorer",
+      icon: <FilePlus size={20} />,
+      label: "Explorer",
+      content: <FileTree initialData={initialData}  openFile={openFile}  />,
+    },
+    {
+      id: "component",
+      icon: <ComponentIcon size={20} />,
+      label: "Component",
+      content: <BlockList editor={editor} />,
+    },
+    {
+      id: "search",
+      icon: <Search size={20} />,
+      label: "Rechercher",
+      content: <SearchReplace />,
+    },
+    {
+      id: "git",
+      icon: <GitBranch size={20} />,
+      label: "Git",
+      content: undefined,
+    },
+  ];
+
+  const activeContentItem = items.find((item) => item.id === activeSection);
+
   return (
-    <div
-      className={`flex bg-base-200 min-w-11 text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-full`}
-    >
+    <div className="flex bg-base-200 min-w-11 text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-full">
       <nav className="flex flex-col border-r justify-between border-base-100/70">
         <div className="flex flex-col border-base-100/50">
           {items.map(({ id, icon, label }) => (
@@ -99,7 +118,9 @@ const Sidebar: React.FC<SidebarProps> = ({ editor, handleExport, handleImport, a
           <button
             onClick={() => setActiveSidebar(false)}
             className={`border-l-3 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 ${
-              activeSection === "settings" ? "border-primary" : "border-transparent"
+              activeSection === "settings"
+                ? "border-primary"
+                : "border-transparent"
             }`}
             title="Paramètres"
           >
@@ -107,26 +128,38 @@ const Sidebar: React.FC<SidebarProps> = ({ editor, handleExport, handleImport, a
           </button>
         </div>
       </nav>
+
+      {/* SidePanel affichage */}
+      <SidePanel
+        activeSection={activeSection}
+        editor={editor}
+        openFile={openFile}
+        contentItem={activeContentItem}
+      />
     </div>
   );
 };
 
-export default Sidebar;
-
 type SidePanelProps = {
   activeSection: string;
   editor: any;
+  openFile: (node: TreeNode) => void;
+  contentItem?: SidebarItem;
 };
 
-export const SidePanel: React.FC<SidePanelProps> = ({ activeSection, editor }) => {
-  const contentItem = items.find((item) => item.id === activeSection);
-
+export const SidePanel: React.FC<SidePanelProps> = ({
+  activeSection,
+  editor,
+  openFile,
+  contentItem,
+}) => {
+  // Met à jour content si component
   if (contentItem?.id === "component") {
     contentItem.content = <BlockList editor={editor} />;
   }
 
   return (
-    <div id="blockManager" className="bg-base-100/50 w-full h-full min-w-50">
+    <div id="blockManager" className="bg-base-100/50 w-full h-full min-w-60">
       {contentItem ? (
         <>
           <div className="border-b border-base-100/50 font-semibold px-2 py-1">
@@ -134,7 +167,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ activeSection, editor }) =
           </div>
           <div className="h-full overflow-y-scroll">
             {contentItem.content ? (
-              <div className="h-full">{contentItem.content}</div>
+              <div className="h-full">{contentItem.content}  </div>
             ) : (
               <div className="text-sm text-base-content/50 px-2">
                 Aucun contenu n'a été trouvé
@@ -146,3 +179,5 @@ export const SidePanel: React.FC<SidePanelProps> = ({ activeSection, editor }) =
     </div>
   );
 };
+
+export default Sidebar;

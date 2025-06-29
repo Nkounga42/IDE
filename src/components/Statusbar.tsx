@@ -1,12 +1,18 @@
 import { Bell, BellDot } from "lucide-react";
 
 const Statusbar = ({
+  cursorLine,
+  cursorCol,
+  language,
+  theme,
   charCount,
   inspector,
   notifications,
   notificationVisible,
   setNotificationVisible,
+  lineNumbers,
 }: {
+  lineNumbers: string[];
   inspector: { html: number; css: number };
   charCount: number;
   notifications: number;
@@ -14,10 +20,12 @@ const Statusbar = ({
   setNotificationVisible: (visible: boolean) => void;
 }) => {
   return (
-    <div className="h-6 px-4 flex items-center justify-between text-[12px] bg-base-100 text-base-content border-t border-base-200">
+    <div className="h-6 px-4 flex items-center justify-between   bg-base-100 text-base-content text-sm border-t border-base-200">
       <div className="space-x-2">
-        <span>HTML: { charCount}</span>
-        <span>CSS: {inspector.css}</span>
+        <span>Ligne : {cursorLine}</span>
+        <span>Colonne : {cursorCol}</span>
+        <span>💻 Langage : {language}</span>
+        <span>🔠 Encodage : UTF-8</span>
       </div>
       <div className="flex items-center space-x-2 tooltip tooltip-top">
         <button
@@ -26,7 +34,7 @@ const Statusbar = ({
         >
           {notifications > 0 ? <BellDot size={13} /> : <Bell size={13} />} 
         </button> 
-      </div>
+      </div> 
     </div>
   );
 };

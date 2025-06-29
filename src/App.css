@@ -2,12 +2,15 @@
 @plugin "daisyui";
 
 * {
-    font: 400 14px/1.5 "Inter", sans-serif;
+  font: 400 14px/1.5 "Inter", sans-serif;
+  box-sizing: border-box;
 }
 body {
-    @apply bg-base-100 text-base-content;
+  @apply bg-base-100 text-base-content;
 }
-
+textarea{
+  color: rgba(255, 255, 255, 0);
+}
 @plugin "daisyui/theme" {
   name: "wireframe";
   default: false;
@@ -43,25 +46,30 @@ body {
   --noise: 0;
 }
 .split {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
+  display: flex;
+  width: 100%;
+  flex-direction: row;
 }
 
 .split > div {
-    float: left;
-    height: 100%;
+  float: left;
+  height: 100%;
 }
 
 .gutter {
-    background-color: var(--color-base-300/50);
-    background-repeat: no-repeat;
-    background-position: 50%;
-    min-width: 8px;
+  background-color: var(--color-base-300/50);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  min-width: 8px;
 }
 
 .gutter.gutter-horizontal {
-    /* background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg=='); */
-    cursor: col-resize;
-    min-width: 8px;
+  /* background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg=='); */
+  cursor: col-resize;
+  min-width: 8px;
+}
+
+.custom-max-h {
+  max-height: calc(100vh - 5.6rem);
+  overflow-y: scroll;
 }
