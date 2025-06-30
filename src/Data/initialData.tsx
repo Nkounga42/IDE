@@ -40,7 +40,7 @@ root.render(<App />);
         children: [
           { 
             id: "7", 
-            name: "Button.py", 
+            name: "Button.js", 
             type: "file",
             content: `import React from 'react';
 

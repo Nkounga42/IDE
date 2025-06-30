@@ -286,7 +286,7 @@ const FileTree: React.FC<{
     setTreeData(addParents(newTree));
   };
 
-  // --- COMPOSANT RECURSIF ---
+   
 
   type FolderNodeProps = {
     node: TreeNode;

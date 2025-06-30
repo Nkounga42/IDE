@@ -25,7 +25,7 @@ const CodeEditor = ({code, language}) => {
         <Editor
           height="100%"
           width="100%"
-          defaultLanguage={language || 'text'}
+          defaultLanguage={language === "TypeScript" ? "javascript" : language || 'text'}
           value={code}
           theme="wireframe"
           beforeMount={(monaco) => {

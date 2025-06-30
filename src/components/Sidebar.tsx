@@ -6,12 +6,12 @@ import {
   Settings,
   Component as ComponentIcon,
 } from "lucide-react";
-
-import BlockList from "./Designer/BlockList";
+ 
 import SearchReplace from "./SearchReplace";
-import FileTree from "./fileTree";
+import FileTree from "./FileTree";
 
 import initialData from "../Data/initialData";
+import BlockList from "./BlockList";
 
 type TreeNode = {
   id: string;

@@ -2,8 +2,8 @@ function getFileFormat(extension) {
   const formats = {
     '.js': 'JavaScript',
     '.ts': 'TypeScript',
-    '.jsx': 'React (JavaScript)',
-    '.tsx': 'React (TypeScript)',
+    '.jsx': 'JavaScript',
+    '.tsx': 'TypeScript',
     '.html': 'HTML',
     '.css': 'CSS',
     '.scss': 'Sass',

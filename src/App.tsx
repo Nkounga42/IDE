@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import EditionArea from "./pages/EditionArea";
 import Sidebar, { SidePanel } from "./components/SideBar";
 import Split from "react-split";
 
@@ -10,8 +9,7 @@ import { NotificationBox } from "./components/NotificationBox";
 import { PushNotification } from "./context/NotificationStore";
 import { useNotification } from "./context/NotificationContext";
 import Statusbar from "./components/Statusbar";
-import ModeSwitcher from "./components/ModeSwitcher";
-import Canvas from "./components/Designer/Canvas";
+import ModeSwitcher from "./components/ModeSwitcher"; 
 import { sampleNotifs } from "./sampleNotifs";
 import OgletManager from "./components/OgletManager";
 import { Play } from "lucide-react";
@@ -96,12 +94,7 @@ const App = () => {
             <Play size={13} />
           </button>
         </div>
-
-        <div className="h-full flex flex-row-reverse" hidden>
-          <div className={mode === "edition" ? "hidden" : "w-full h-full"}>
-            <Canvas setEditor={setEditor} />
-          </div>
-        </div>
+ 
 
         <div className="flex h-full w-full overflow-hidden">
           <Sidebar
