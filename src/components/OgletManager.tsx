@@ -2,11 +2,14 @@ import { SquareSplitHorizontal, X } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import CodeEditor from "./Editor/CodeEditor";
 import Split from "split.js";
+import getFileExtension from "../Services/getFileExtension";
+import getFileFormat from "../Services/getFileFormat";
 
 const OgletManager = ({
   mode,
   key,
   setCharCount,
+  SetLanguage,
   language,
   theme,
   onglets,
@@ -51,7 +54,18 @@ const OgletManager = ({
 
   const value =
     onglets.find((onglet) => onglet.id === activeTab)?.content || "";
-
+ 
+  useEffect(() => {
+  const currentOnglet = onglets.find((onglet) => onglet.id === activeTab);
+  if (currentOnglet) {
+    const extension = getFileExtension(currentOnglet.label);
+    const format = getFileFormat(extension);
+    SetLanguage(format);
+  }
+}, [activeTab, onglets]); // Ajoute l'effet ici
+ 
+  
+ 
   return (
     // <div  className="flex flex-col h-full w-full border-l border-base-300">
 
@@ -108,12 +122,12 @@ const OgletManager = ({
             <SquareSplitHorizontal size={16} />
           </div>
         </div>
-        {mode === "editor" ? (
+        {mode === "edition" ? (
           onglets.length > 0 ? (
             <CodeEditor
               language={language}
               theme={theme}
-              code={value}
+              code={value  }
               setCharCount={setCharCount}
             />
           ) : (
@@ -124,7 +138,7 @@ const OgletManager = ({
         ) : (
           <div className="flex justify-center h-full items-center text-base-content/30">
               Veillez selectionner un Mode
-            </div>
+          </div>
         )}
       </div>
     </div>

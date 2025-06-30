@@ -156,7 +156,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   }
 
   return (
-    <div id="blockManager" className="bg-base-100/50 w-full h-full min-w-72">
+    <div id="blockManager" className="bg-base-100/50 w-full h-full flex flex-1 flex-col min-w-72">
       {contentItem ? (
         <>
           <div className="border-b border-base-100/50 font-semibold px-2 py-1">
@@ -164,7 +164,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
           </div>
           <div className="h-full max-w-72 flex overflow-y-scroll">
             {contentItem.content ? (
-              <div className="h-full">{contentItem.content}  </div>
+              <div className="h-full w-full">{contentItem.content}  </div>
             ) : (
               <div className="text-sm text-base-content/50 px-2">
                 Aucun contenu n'a été trouvé

@@ -23,7 +23,7 @@ export default App;
       },
       { 
         id: "3", 
-        name: "index.tsx", 
+        name: "index.css", 
         type: "file",
         content: `import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -40,7 +40,7 @@ root.render(<App />);
         children: [
           { 
             id: "7", 
-            name: "Button.tsx", 
+            name: "Button.py", 
             type: "file",
             content: `import React from 'react';
 
@@ -80,31 +80,7 @@ export default Modal;
         ],
       },
     ],
-  },
-  {
-    id: "4",
-    name: "public",
-    type: "folder",
-    children: [
-      { 
-        id: "5", 
-        name: "index.html", 
-        type: "file",
-        content: `<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <title>Mon App React</title>
-</head>
-<body>
-  <div id="root"></div>
-  <script src="bundle.js"></script>
-</body>
-</html>
-`
-      }
-    ],
-  },
+  }, 
 ];
 
 

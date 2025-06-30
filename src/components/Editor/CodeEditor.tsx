@@ -1,8 +1,7 @@
-import React, { useRef, useEffect } from "react";
-import Split from "react-split";
+import  { useRef, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
 
-const CodeEditor = ({code}) => {
+const CodeEditor = ({code, language}) => {
   const editorRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -26,7 +25,7 @@ const CodeEditor = ({code}) => {
         <Editor
           height="100%"
           width="100%"
-          defaultLanguage="html"
+          defaultLanguage={language || 'text'}
           value={code}
           theme="wireframe"
           beforeMount={(monaco) => {

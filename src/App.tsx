@@ -50,7 +50,7 @@ const App = () => {
   const [cursorCol, setCursorCol] = useState(1);
   const [lineNumbers, setLineNumbers] = useState<string[]>([]);
   const [mode, setMode] = useState("edition");
-  const [language, setLanguage] = useState("Html");
+  const [language, setLanguage] = useState("text");
   const [theme, setTheme] = useState("vs-dark");
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [editor, setEditor] = useState<grapesjs.Editor | null>(null);
@@ -128,6 +128,7 @@ const App = () => {
                 onglets={onglets}
                 setOnglets={setOnglets}
                 language={language}
+                SetLanguage={setLanguage}
                 activeTab={activeTab}
                 setCursorLine={setCursorLine}
                 setLineNumbers={setLineNumbers}
