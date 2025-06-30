@@ -91,23 +91,23 @@ export const NotificationBox = ({
         <span className="text-sm">Notifications</span>
         <div className="flex items-center space-x-1">
           <button
-            className="btn btn-sm btn-ghost h-6 w-6 p-0"
+            className="btn btn-sm btn-ghost h-6 w-6 p-0 tooltip"
             onClick={onClear}
-            title="Tout effacer"
+            data-tip="Tout effacer"
           >
             <BellOff size={13} />
           </button>
           <button
-            className="btn btn-sm btn-ghost h-6 w-6 p-0"
+            className="btn btn-sm btn-ghost h-6 w-6 p-0 tooltip"
             onClick={onSettingsClick}
-            title="Paramètres"
+            data-tip="Paramètres"
           >
             <Settings size={14} />
           </button>
           <button
-            className="btn btn-sm btn-ghost h-6 w-6 p-0"
+            className="btn btn-sm btn-ghost h-6 w-6 p-0 tooltip"
             onClick={() => setNotificationVisible(false)}
-            title="Fermer"
+            data-tip="Fermer"
           >
             <ListX size={15} />
           </button>
@@ -138,7 +138,7 @@ export const NotificationBox = ({
                       <button
                         onClick={() => toggleExpand(id)}
                         className="btn btn-xs btn-ghost h-5 w-5 p-0"
-                        title={isExpanded ? "Réduire" : "Développer"}
+                        data-tip={isExpanded ? "Réduire" : "Développer"}
                       >
                         {isExpanded ? (
                           <ChevronUp size={12} />
@@ -149,7 +149,7 @@ export const NotificationBox = ({
                       <button
                         onClick={() => onRemove(id)}
                         className="btn btn-xs btn-ghost h-5 w-5 p-0"
-                        title="Supprimer"
+                        data-tip="Supprimer"
                       >
                         <X size={12} />
                       </button>

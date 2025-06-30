@@ -11,7 +11,7 @@ body {
 textarea{
   color: rgba(255, 255, 255, 0);
 }
-@plugin "daisyui/theme" {
+/* @plugin "daisyui/theme" {
   name: "wireframe";
   default: false;
   prefersdark: true;
@@ -44,7 +44,7 @@ textarea{
   --border: 1px;
   --depth: 0;
   --noise: 0;
-}
+} */
 .split {
   display: flex;
   width: 100%;

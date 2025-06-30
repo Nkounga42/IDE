@@ -126,7 +126,7 @@ const GrapesToolbar = ({ editor, canvasReady }: GrapesToolbarProps) => {
           className={`btn btn-sm ${gridVisible ? "btn-primary" : ""}`}
           onClick={toggleGrid}
           disabled={!canvasReady}
-          title={!canvasReady ? "Canvas pas encore prêt" : ""}
+          data-tip={!canvasReady ? "Canvas pas encore prêt" : ""}
         >
           <Monitor className="w-4 h-4" />
         </button>

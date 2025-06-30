@@ -14,56 +14,50 @@ import ModeSwitcher from "./components/ModeSwitcher";
 import Canvas from "./components/Designer/Canvas";
 import { sampleNotifs } from "./sampleNotifs";
 import OgletManager from "./components/OgletManager";
+import { Play } from "lucide-react";
 
 const template = ` <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Most played songs this week</li>`;
- 
 
-const App = () => { 
+const App = () => {
   const [onglets, setOnglets] = useState([]);
+  const [activeTab, setActiveTab] = useState(null);
 
+  const openFile = (fileNode: TreeNode) => {
+    const id = fileNode.id;
+    const label = fileNode.name;
+    const content = fileNode.content || "";
 
- const openFile = (fileNode: TreeNode) => {
-  const id = fileNode.id;
-  const label = fileNode.name;
-  const content = fileNode.content || "";
-
-  // Ajouter onglet visible si pas déjà présent
-  setOnglets((prev) => {
-    const exists = prev.some((o) => o.id === id);
-    if (exists) return prev;
-
-    return [
-      ...prev,
-      {
-        id,
-        label,
-        content,
-      },
-    ];
-  });
-  setActiveSection(id);
-
-};
-
-
+    setOnglets((prev) => {
+      const exists = prev.some((o) => o.id === id);
+      if (!exists) {
+        setActiveTab(id);
+        return [
+          ...prev,
+          {
+            id,
+            label,
+            content,
+          },
+        ];
+      } else {
+        setActiveTab(id);
+        return prev;
+      }
+    });
+  };
 
   const [cursorLine, setCursorLine] = useState(1);
   const [cursorCol, setCursorCol] = useState(1);
   const [lineNumbers, setLineNumbers] = useState<string[]>([]);
   const [mode, setMode] = useState("edition");
-  const [htmlCode, setHtmlCode] = useState(template);
   const [language, setLanguage] = useState("Html");
   const [theme, setTheme] = useState("vs-dark");
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [editor, setEditor] = useState<grapesjs.Editor | null>(null);
   const [charCount, setCharCount] = useState(0);
-  const [activeSection, setActiveSection] = useState("explorer");
+  const [activeSidePanel, setActiveSidePanel] = useState("explorer");
   const { notifications, removeNotification, clearNotifications } =
     useNotification();
-  const [inspector, setInspector] = useState<{ html: number; css: number }>({
-    html: 0,
-    css: 0,
-  });
 
   useEffect(() => {
     sampleNotifs.forEach(({ type, title, message }) => {
@@ -89,47 +83,31 @@ const App = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (editor && mode === "design") {
-      if (typeof editor.setComponents === "function") {
-        editor.setComponents(htmlCode);
-        editor.setStyle("");
-      }
-    }
-  }, [editor, mode]);
-
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="w-full flex flex-col bg-base-100 overflow-hidden relative h-screen">
-        {/* Top Bar */}
         <div className="justify-between items-center flex border-b border-base-200">
           <ModeSwitcher
             mode={mode}
             setMode={setMode}
-            setLanguage={setLanguage}
-            setTheme={setTheme}
+            setActiveSidePanel={setActiveSidePanel}
           />
-          <button
-            className="btn btn-sm btn-primary "
-            // onClick={addNewOglet}
-          >
-            Ajouter un éditeur
+          <button className="btn btn-sm btn-primary btn-circle">
+            <Play size={13} />
           </button>
         </div>
 
-        {/* Hidden Canvas view (Design mode) */}
         <div className="h-full flex flex-row-reverse" hidden>
           <div className={mode === "edition" ? "hidden" : "w-full h-full"}>
             <Canvas setEditor={setEditor} />
           </div>
         </div>
 
-        {/* Main area with Sidebar + Split */}
         <div className="flex h-full w-full overflow-hidden">
           <Sidebar
             editor={editor}
-            activeSection={activeSection}
-            setActiveSection={setActiveSection}
+            activeSidePanel={activeSidePanel}
+            setActiveSidePanel={setActiveSidePanel}
             handleImport={undefined}
             openFile={openFile}
           />
@@ -143,21 +121,20 @@ const App = () => {
             snapOffset={5}
             cursor="col-resize"
           >
-            {/* Right Panel (OgletManager or Design) */}
-            {mode === "edition" ? (
-              // onglets.map((oglet, index) => (
-                <OgletManager
-                  // key={oglet.id}
-                  setCharCount={setCharCount} 
-                  onglets={onglets}
-                  setOnglets={setOnglets}
-                  language={language}
-                  code="{oglet.code}"
-                />
-              // ))
-            ) : (
-              <div className="w-full h-full" />
-            )}
+            
+              <OgletManager
+                mode={mode}
+                setCharCount={setCharCount}
+                onglets={onglets}
+                setOnglets={setOnglets}
+                language={language}
+                activeTab={activeTab}
+                setCursorLine={setCursorLine}
+                setLineNumbers={setLineNumbers}
+                setCursorCol={setCursorCol}
+                setActiveTab={setActiveTab}
+              />
+            
           </Split>
         </div>
 
@@ -165,7 +142,6 @@ const App = () => {
         <Statusbar
           charCount={charCount}
           cursorLine={cursorLine}
-          inspector={inspector}
           cursorCol={cursorCol}
           notifications={notifications.length}
           theme={theme}

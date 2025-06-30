@@ -1,4 +1,4 @@
-import { Bell, BellDot } from "lucide-react";
+import { Bell, BellDot, Binary, Braces } from "lucide-react";
 
 const Statusbar = ({
   cursorLine,
@@ -21,11 +21,11 @@ const Statusbar = ({
 }) => {
   return (
     <div className="h-6 px-4 flex items-center justify-between   bg-base-100 text-base-content text-sm border-t border-base-200">
-      <div className="space-x-2">
-        <span>Ligne : {cursorLine}</span>
-        <span>Colonne : {cursorCol}</span>
-        <span>💻 Langage : {language}</span>
-        <span>🔠 Encodage : UTF-8</span>
+      <div className="space-x-5 flex">
+        <span className="flex gap-1 items-center justify-center">Ligne : {cursorLine}</span>
+        <span className="flex gap-1 items-center justify-center">Colonne : {cursorCol}</span>
+        <span className="flex gap-1 items-center justify-center"><Braces size={13}  /> {language}</span>
+        <span className="flex gap-1 items-center justify-center"> <Binary size={13}  /> UTF-8</span>
       </div>
       <div className="flex items-center space-x-2 tooltip tooltip-top">
         <button

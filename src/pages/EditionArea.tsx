@@ -74,7 +74,7 @@ const EditionArea = ({ inspector, setInspector, fontSize, handleCodeChange, setD
         {selectedTab === "preview" ? (
           <iframe
             srcDoc={srcDoc}
-            title="preview"
+            data-tip="preview"
             sandbox="allow-scripts"
             frameBorder="0"
             width="100%"

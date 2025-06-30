@@ -31,20 +31,18 @@ interface SidebarItem {
 
 interface SidebarProps {
   editor: grapesjs.Editor | null;
-  activeSection: string;
-  setActiveSection: React.Dispatch<React.SetStateAction<string>>;
+  activeSidePanel: string;
+  setActiveSidePanel: React.Dispatch<React.SetStateAction<string>>;
   handleImport?: () => void;
   handleExport?: () => void;
   openFile: (node: TreeNode) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
-   editor,
-  handleExport,
-  handleImport,
+  editor, 
   openFile, // on récupère openFile ici
-  activeSection,
-  setActiveSection,
+  activeSidePanel,
+  setActiveSidePanel,
 }) => {
   const [activeSidebar, setActiveSidebar] = useState(false);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
@@ -60,10 +58,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [editor]);
 
   const handleSectionClick = (id: string) => {
-    if (activeSection === id) {
+    if (activeSidePanel === id) {
       setActiveSidebar(!activeSidebar);
     } else {
-      setActiveSection(id);
+      setActiveSidePanel(id);
       setActiveSidebar(true);
     }
   };
@@ -95,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     },
   ];
 
-  const activeContentItem = items.find((item) => item.id === activeSection);
+  const activeContentItem = items.find((item) => item.id === activeSidePanel);
 
   return (
     <div className="flex bg-base-200 min-w-11 text-base-content border-base-100/70 overflow-hidden border-r transition-all duration-300 h-full">
@@ -106,7 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => handleSectionClick(id)}
                 className={`border-l-3 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 ${
-                  activeSection === id ? "border-primary" : "border-transparent"
+                  activeSidePanel === id ? "border-primary bg-primary/10" : "border-transparent"
                 }`}
               >
                 {icon}
@@ -116,39 +114,38 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
         <div>
           <button
-            onClick={() => setActiveSidebar(false)}
-            className={`border-l-3 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 ${
-              activeSection === "settings"
-                ? "border-primary"
+            onClick={() => setActiveSidebar(false)}   
+            className={`border-l-3 border-0 btn btn-square btn-ghost rounded-none h-11 w-11 transition-colors duration-150 tooltip tooltip-right ${
+              activeSidePanel === "settings"
+                ? "border-primary bg-primary/10"
                 : "border-transparent"
             }`}
-            title="Paramètres"
+            data-tip="Paramètres"
           >
             <Settings size={20} />
           </button>
         </div>
       </nav>
-
-      {/* SidePanel affichage */}
-      <SidePanel
-        activeSection={activeSection}
+      {/* activeSidePanel */}
+      {activeSidebar && <SidePanel
+        activeSidePanel={activeSidePanel}
         editor={editor}
         openFile={openFile}
         contentItem={activeContentItem}
-      />
+      />}
     </div>
   );
 };
 
 type SidePanelProps = {
-  activeSection: string;
+  activeSidePanel: string;
   editor: any;
   openFile: (node: TreeNode) => void;
   contentItem?: SidebarItem;
 };
 
 export const SidePanel: React.FC<SidePanelProps> = ({
-  activeSection,
+  activeSidePanel,
   editor,
   openFile,
   contentItem,
@@ -159,13 +156,13 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   }
 
   return (
-    <div id="blockManager" className="bg-base-100/50 w-full h-full min-w-60">
+    <div id="blockManager" className="bg-base-100/50 w-full h-full min-w-72">
       {contentItem ? (
         <>
           <div className="border-b border-base-100/50 font-semibold px-2 py-1">
             {contentItem.label}
           </div>
-          <div className="h-full overflow-y-scroll">
+          <div className="h-full max-w-72 flex overflow-y-scroll">
             {contentItem.content ? (
               <div className="h-full">{contentItem.content}  </div>
             ) : (

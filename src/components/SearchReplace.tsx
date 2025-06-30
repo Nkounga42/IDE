@@ -5,6 +5,7 @@ import {
   ReplaceAll,
   ArrowDown,
   ArrowUp,
+  CaseSensitive,
 } from "lucide-react";
 
 const SearchReplace = () => {
@@ -15,16 +16,28 @@ const SearchReplace = () => {
   const [replace, setReplace] = useState("");
   const [matchIndices, setMatchIndices] = useState<number[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [ignoreCase, setIgnoreCase] = useState(false);
 
   const updateMatches = (value: string) => {
-    const indices = [];
+    if (!value) {
+      setMatchIndices([]);
+      setCurrentIndex(0);
+      return;
+    }
+
+    const indices: number[] = [];
     let pos = 0;
+
+    const baseContent = ignoreCase ? content.toLowerCase() : content;
+    const baseValue = ignoreCase ? value.toLowerCase() : value;
+
     while (true) {
-      const index = content.indexOf(value, pos);
+      const index = baseContent.indexOf(baseValue, pos);
       if (index === -1) break;
       indices.push(index);
-      pos = index + value.length;
+      pos = index + baseValue.length;
     }
+
     setMatchIndices(indices);
     setCurrentIndex(0);
   };
@@ -39,8 +52,7 @@ const SearchReplace = () => {
 
     const start = matchIndices[currentIndex];
     const end = start + search.length;
-    const newContent =
-      content.slice(0, start) + replace + content.slice(end);
+    const newContent = content.slice(0, start) + replace + content.slice(end);
 
     setContent(newContent);
     updateMatches(search);
@@ -57,18 +69,16 @@ const SearchReplace = () => {
   };
 
   const prevMatch = () => {
-    setCurrentIndex((i) =>
-      (i - 1 + matchIndices.length) % matchIndices.length
-    );
+    setCurrentIndex((i) => (i - 1 + matchIndices.length) % matchIndices.length);
   };
 
   return (
-    <div className="p-1">
+    <div className="p-1 max-w-57">
       <div className="flex flex-wrap items-end gap-1">
         <div className="form-control flex gap-2 flex">
           <label className="label">
             <span className="label-text flex items-center gap-1">
-              <Search size={16} /> 
+              <Search size={16} />
             </span>
           </label>
           <input
@@ -83,7 +93,7 @@ const SearchReplace = () => {
         <div className="form-control flex gap-2 flex">
           <label className="label">
             <span className="label-text flex items-center gap-1">
-              <Replace size={16} /> 
+              <Replace size={16} />
             </span>
           </label>
           <input
@@ -97,17 +107,49 @@ const SearchReplace = () => {
 
         <div className="flex justify-center items-center   w-full">
           <div className="flex join justify-center">
-            <button className="btn btn-sm join-item" onClick={prevMatch}>
+            <button
+              className="btn btn-sm join-item tooltip tooltip-right"
+              onClick={prevMatch}
+              data-tip="Previous Match"
+            >
               <ArrowUp size={16} />
             </button>
-            <button className="btn btn-sm join-item" onClick={nextMatch}>
+            <button
+              className="btn btn-sm join-item tooltip"
+              onClick={nextMatch}
+              data-tip="Next Match"
+            >
               <ArrowDown size={16} />
             </button>
-            <button className="btn btn-sm join-item " onClick={handleReplaceOne}>
-              <Replace size={16} /> 
+            <button
+              className="btn btn-sm join-item tooltip"
+              onClick={handleReplaceOne}
+              data-tip="Replace One"
+            >
+              <Replace size={16} />
             </button>
-            <button className="btn btn-sm join-item " onClick={handleReplaceAll}>
-              <ReplaceAll size={16} /> 
+            <button
+              className="btn btn-sm join-item tooltip"
+              onClick={handleReplaceAll}
+              data-tip="Replace All"
+            >
+              <ReplaceAll size={16} />
+            </button>
+
+            <button
+              className={`btn btn-sm join-item tooltip tooltip-left ${
+                ignoreCase && "bg-primary"
+              } `}
+              data-tip="Ignore Case"
+              onClick={() => {
+                setIgnoreCase((prev) => {
+                  const newVal = !prev;
+                  updateMatches(search); // re-search with new mode
+                  return newVal;
+                });
+              }}
+            >
+              <CaseSensitive size={16} />
             </button>
           </div>
         </div>
@@ -122,7 +164,9 @@ const SearchReplace = () => {
           return (
             <span
               key={i}
-              className={isInMatch ? "bg-secondary/30 text-black font-bold" : ""}
+              className={
+                isInMatch ? "bg-secondary/30 text-black font-bold" : ""
+              }
             >
               {char}
             </span>

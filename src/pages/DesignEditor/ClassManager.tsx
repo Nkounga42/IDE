@@ -130,7 +130,7 @@ const ClassManager = ({ editor }: { editor: grapesjs.Editor | null }) => {
   const classes = [...new Set(selected.getClasses())];
 
   return (
-    <div id="class-manager-panel" title="Gestionnaire de classes CSS" className="mb-4">
+    <div id="class-manager-panel" data-tip="Gestionnaire de classes CSS" className="mb-4">
       <h4 className="font-semibold mb-2">Classes CSS</h4>
 
       <div className="relative flex gap-2 mb-2">
