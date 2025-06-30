@@ -14,7 +14,6 @@ import { sampleNotifs } from "./sampleNotifs";
 import OgletManager from "./components/OgletManager";
 import { Play } from "lucide-react";
 
-const template = ` <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Most played songs this week</li>`;
 
 const App = () => {
   const [onglets, setOnglets] = useState([]);

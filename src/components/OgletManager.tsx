@@ -4,6 +4,7 @@ import CodeEditor from "./Editor/CodeEditor";
 import Split from "split.js";
 import getFileExtension from "../Services/getFileExtension";
 import getFileFormat from "../Services/getFileFormat";
+import { Designer } from "./Designer/Designer";
 
 const OgletManager = ({
   mode,
@@ -136,9 +137,7 @@ const OgletManager = ({
             </div>
           )
         ) : (
-          <div className="flex justify-center h-full items-center text-base-content/30">
-              Veillez selectionner un Mode
-          </div>
+           <Designer/>
         )}
       </div>
     </div>

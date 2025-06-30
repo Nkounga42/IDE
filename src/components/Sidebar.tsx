@@ -173,6 +173,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
           </div>
         </>
       ) : null}
+      
     </div>
   );
 };
